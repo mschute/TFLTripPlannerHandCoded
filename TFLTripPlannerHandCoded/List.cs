@@ -1,6 +1,52 @@
 namespace TFLTripPlannerHandCoded;
 
-public class List
+public class List<T>
 {
+    private T[] items;
+    private int capacity;
+    public int Count { get; private set; }
+        
+    public List()
+    {
+        capacity = 8;
+        items = new T[capacity];
+        Count = 0;
+    }
     
+    public void Add(T item)
+    {
+        if (Count == capacity)
+        {
+            IncreaseCapacity();
+        }
+        items[Count++] = item;
+    }
+
+    private void IncreaseCapacity()
+    {
+        capacity *= 2;
+        T[] newItems = new T[capacity];
+        for (int i = 0; i < Count; i++)
+        {
+            newItems[i] = items[i];
+        }
+        items = newItems;
+    }
+
+    public T this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= Count)
+                throw new ArgumentOutOfRangeException("Index out of range");
+            return items[index];
+        }
+        set
+        {
+            if (index < 0 || index >= Count)
+                throw new ArgumentOutOfRangeException("Index out of range");
+            items[index] = value;
+        }
+    }
 }
+
