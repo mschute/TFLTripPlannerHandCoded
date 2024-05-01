@@ -1,6 +1,5 @@
 public class Node<TKey, TValue>
     where TKey : IComparable<TKey>
-    // where TValue : class
 {
     public TKey Key;
     public TValue Value;
@@ -72,8 +71,6 @@ public class BinarySearchTree<TKey, TValue>
                 return;
             }
             
-            //TODO possible case where the value we want to insert is greater than the left node
-            
             Add(node.Left, key, value);
         }
         
@@ -87,8 +84,6 @@ public class BinarySearchTree<TKey, TValue>
 
             return;
         }
-        
-        //TODO possible case where the value we want to insert is greater than the right node
             
         Add(node.Right, key, value);
     }
@@ -105,38 +100,5 @@ public class BinarySearchTree<TKey, TValue>
         InOrderTraversal(node.Left, func);
         func(node);
         InOrderTraversal(node.Right, func);
-    }
-
-    private void PreOrderTraversal(Node<TKey, TValue> node, Action<Node<TKey, TValue>> func)
-    {
-        if (node == null) return;
-
-        func(node);
-        PreOrderTraversal(node.Left, func);
-        PreOrderTraversal(node.Right, func);
-    }
-
-    private void PostOrderTraversal(Node<TKey, TValue> node, Action<Node<TKey, TValue>> func)
-    {
-        if (node == null) return;
-
-        PostOrderTraversal(node.Left, func);
-        PostOrderTraversal(node.Right, func);
-        func(node);
-    }
-
-    private static void LevelOrderTraversal(Node<TKey, TValue> node, int level, Action<Node<TKey, TValue>> func)
-    {
-        if (node == null) return;
-
-        if (level == 0)
-        {
-            func(node);
-        }
-        else if (level > 0)
-        {
-            LevelOrderTraversal(node.Left, level - 1, func);
-            LevelOrderTraversal(node.Right, level - 1, func);
-        }
     }
 }
