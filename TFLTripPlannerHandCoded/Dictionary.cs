@@ -54,4 +54,32 @@ public class Dictionary
                 break;
         }
     }
+    
+    private void ProcessNode( DictionaryEntry current )
+    {
+        Add( current.GetKey(), current.GetValue() ) ;
+        Console.WriteLine($"{current.GetKey()}, {current.GetValue()}");
+    }
+    
+    public void InOrderTraversal()
+    {
+        InOrderTraversal( _dictionaryRoot ) ;
+    }
+    
+    private void InOrderTraversal( DictionaryEntry current )
+    {
+    
+        if ( current == null )
+        {
+            return;
+        }
+        else
+        {
+            InOrderTraversal( current.GetLeftChild() ) ;
+    
+            ProcessNode( current ) ;
+    
+            InOrderTraversal( current.GetRightChild() ) ;
+        }
+    }
 }
