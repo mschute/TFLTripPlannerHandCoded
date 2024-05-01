@@ -3,7 +3,7 @@ namespace TFLTripPlannerHandCoded;
 public class List<T>
 {
     private T[] items;
-    private int capacity;
+    private int capacity; 
     public int Count { get; private set; }
         
     public List()
@@ -15,7 +15,7 @@ public class List<T>
     
     public void Add(T item)
     {
-        if (Count == capacity)
+        if (Count >= capacity)
         {
             IncreaseCapacity();
         }
