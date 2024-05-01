@@ -599,4 +599,4 @@ FodyWeavers.xsd
 **/bin/
 **/obj/
 
-*DS_Store
+*.DS_Store
