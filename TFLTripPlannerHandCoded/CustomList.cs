@@ -1,19 +1,19 @@
 namespace TFLTripPlannerHandCoded;
 
-public class List<T>
+public class CustomList<IEnumerable>
 {
-    private T[] items;
+    private IEnumerable[] items;
     private int capacity; 
     public int Count { get; private set; }
         
-    public List()
+    public CustomList()
     {
         capacity = 8;
-        items = new T[capacity];
+        items = new IEnumerable[capacity];
         Count = 0;
     }
     
-    public void Add(T item)
+    public void Add(IEnumerable item)
     {
         if (Count >= capacity)
         {
@@ -25,7 +25,7 @@ public class List<T>
     private void IncreaseCapacity()
     {
         capacity *= 2;
-        T[] newItems = new T[capacity];
+        IEnumerable[] newItems = new IEnumerable[capacity];
         for (int i = 0; i < Count; i++)
         {
             newItems[i] = items[i];
@@ -33,7 +33,7 @@ public class List<T>
         items = newItems;
     }
 
-    public T this[int index]
+    public IEnumerable this[int index]
     {
         get
         {

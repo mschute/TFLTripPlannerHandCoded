@@ -1,9 +1,11 @@
+using System.Security.Cryptography;
+
 namespace TFLTripPlannerHandCoded;
 
-public class Dictionary
+public class CustomDictionary
 {
     private DictionaryEntry? _dictionaryRoot = null;
-
+    CustomList<string> keys = new CustomList<string>();
     public object? FindEntryValue(string key)
     {
         var current = _dictionaryRoot;
@@ -57,8 +59,7 @@ public class Dictionary
     
     private void ProcessNode( DictionaryEntry current )
     {
-        Add( current.GetKey(), current.GetValue() ) ;
-        Console.WriteLine($"{current.GetKey()}, {current.GetValue()}");
+        keys.Add(current.GetKey());
     }
     
     public void InOrderTraversal()
@@ -68,7 +69,7 @@ public class Dictionary
     
     private void InOrderTraversal( DictionaryEntry current )
     {
-    
+        
         if ( current == null )
         {
             return;
@@ -78,8 +79,13 @@ public class Dictionary
             InOrderTraversal( current.GetLeftChild() ) ;
     
             ProcessNode( current ) ;
-    
             InOrderTraversal( current.GetRightChild() ) ;
         }
+    }
+
+    public CustomList<string> GetKeys()
+    {
+        this.InOrderTraversal();
+        return keys;
     }
 }
