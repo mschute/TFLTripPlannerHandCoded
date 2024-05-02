@@ -6,7 +6,7 @@ public class CustomDictionary<TKey, TValue>
 {
     private readonly BinarySearchTree<TKey, TValue> _tree = new();
     private int count = 0;
-    
+
     public TValue this[TKey key]
     {
         get
@@ -20,7 +20,7 @@ public class CustomDictionary<TKey, TValue>
             catch (Exception)
             {
             }
-            
+
             return default;
         }
 
@@ -38,7 +38,7 @@ public class CustomDictionary<TKey, TValue>
             }
         }
     }
-    
+
     public TValue GetValue(TKey key)
     {
         return _tree.GetNode(key).Value;
@@ -69,7 +69,6 @@ public class CustomDictionary<TKey, TValue>
         catch (Exception)
         {
         }
-       
     }
 
     public CustomList<TKey> Keys
@@ -79,11 +78,11 @@ public class CustomDictionary<TKey, TValue>
             var keys = new CustomList<TKey>();
 
             _tree.InOrderTraversal(node => keys.Add(node.Key));
-            
+
             return keys;
         }
     }
-    
+
     public CustomList<TValue> Values
     {
         get
@@ -91,7 +90,7 @@ public class CustomDictionary<TKey, TValue>
             var values = new CustomList<TValue>();
 
             _tree.InOrderTraversal(node => values.Add(node.Value));
-            
+
             return values;
         }
     }

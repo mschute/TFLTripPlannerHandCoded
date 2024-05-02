@@ -1,6 +1,5 @@
 namespace TFLTripPlannerHandCoded;
 
-
 public class Station : IComparer<Station>
 {
     public string Name { get; }
@@ -28,7 +27,7 @@ public class Station : IComparer<Station>
     {
         Connections.Add(new Connection(station, weight, line, direction));
     }
-    
+
     public int Compare(Station x, Station y)
     {
         // Compare stations by name first
