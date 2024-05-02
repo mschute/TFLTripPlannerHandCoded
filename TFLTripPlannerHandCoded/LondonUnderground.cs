@@ -12,7 +12,7 @@ public static class LondonUnderground
     {
         Stations = new CustomDictionary<string, Station>();
         Connections = new CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>>();
-        LoadDataFromCSV("../../../TestData/TestData1.csv");
+        LoadDataFromCSV("../../../TestData/TestData3.csv");
 
         ConsoleView view = new ConsoleView();
     }
