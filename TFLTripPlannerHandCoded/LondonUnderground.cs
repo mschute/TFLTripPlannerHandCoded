@@ -127,7 +127,6 @@ public static class LondonUnderground
                 Console.WriteLine("-------------------------------------");
                 Console.WriteLine($"Station Details for: {station.Name}");
                 Console.WriteLine("Connections:");
-                //TODO Convert to for loop
                 for (int i = 0; i < station.Connections.Count; i++)
                 {
                     Console.WriteLine($"  - To: {station.Connections[i].DestinationStation.Name}, Travel time: {station.Connections[i].TravelTime}, Delay: {station.Connections[i].Delay}, Open: {station.Connections[i].Open.ToString()}, Line: {station.Connections[i].Line}, Direction: {station.Connections[i].Direction}");
@@ -154,14 +153,13 @@ public static class LondonUnderground
         if (Connections[line].ContainsKey(station1))
         {
             // If the inner key exists, add the item to the list associated with that inner key
-            //TODO This is using IEnumerable Link function Last, need to create Last function in Custom List
             Connections[line][station1].Add(Stations[station1].Connections.Last());
         }
         else
         {
             // If the inner key does not exist, create a new list and add the item to it
-            //TODO This is using IEnumerable Link function Last, need to create Last function in Custom List
-            var newCustomList = new CustomList<Connection> { Stations[station1].Connections.Last() };
+            var newCustomList = new CustomList<Connection>();
+            newCustomList.Add(Stations[station1].Connections.Last());
                 
             // Add the inner key along with the list to the inner dictionary
             Connections[line].Add(station1, newCustomList);
@@ -253,7 +251,7 @@ public static class LondonUnderground
             var currentStation = unexploredStations.Min;
 
             //TODO Possibly change this to a for loop
-            for (int i = 0; i < currentStation.Connections.Count)
+            for (int i = 0; i < currentStation.Connections.Count; i++)
             {
                 if (currentStation.Connections[i].Open)
                 {
@@ -301,12 +299,10 @@ public static class LondonUnderground
             if (current.Previous != null)
             {
                 current.Next = next;
-                //TODO Possibly need to chang this from FirstOrDefault to newly created First method in CustomList
                 //The previous connection is found by finding the previous station, whos connection = our current station (and is open)
                 previousConnection = current.Previous.Connections.FirstOrDefault(c => c.DestinationStation == current && c.Open != false);
                 if (current != Stations[endName])
                 {
-                    //TODO Possibly need to chang this from FirstOrDefault to newly created First method in CustomList
                     nextConnection = current.Connections.FirstOrDefault(c => c.DestinationStation.Name == current.Next.Name & c.Open != false);   
                 }
                 if (previousConnection != null)
