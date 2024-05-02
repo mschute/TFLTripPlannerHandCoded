@@ -31,7 +31,7 @@ namespace TFLTripPlanner
             int position = Size - 1;
             MoveUp(position);
         }
-        
+
         private void MoveUp(int position)
         {
             while (position > 0 && Heap[position].TimeFromStart < Heap[ParentIndex(position)].TimeFromStart)
@@ -40,17 +40,18 @@ namespace TFLTripPlanner
                 position = ParentIndex(position);
             }
         }
-        
+
         public void MoveDown(int position)
         {
             int smallestChild;
-            
+
             // Find the smallest child of the current station and swap them.
             // Do this until the current station is smaller than both of its children.
             while (HasLeftChild(position))
             {
                 smallestChild = LeftChildIndex(position);
-                if (HasRightChild(position) && Heap[RightChildIndex(position)].TimeFromStart < Heap[LeftChildIndex(position)].TimeFromStart)
+                if (HasRightChild(position) && Heap[RightChildIndex(position)].TimeFromStart <
+                    Heap[LeftChildIndex(position)].TimeFromStart)
                 {
                     smallestChild = RightChildIndex(position);
                 }
@@ -75,6 +76,7 @@ namespace TFLTripPlanner
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -90,12 +92,12 @@ namespace TFLTripPlanner
                     break;
                 }
             }
-            
+
             // Step 2: Delete the station and replace it with the bottom-most/right-most station
             Heap[position] = Heap[Size - 1];
             // Decrease the size because we've left a blank space.
             Size--;
-            
+
             // Step 3: Move the station up or down to its correct position
             MoveDown(position);
         }
@@ -107,6 +109,7 @@ namespace TFLTripPlanner
             {
                 newHeap[i] = Heap[i];
             }
+
             Heap = newHeap;
         }
 
@@ -114,27 +117,27 @@ namespace TFLTripPlanner
         {
             return (position - 1) / 2;
         }
-        
+
         private int LeftChildIndex(int position)
         {
             return 2 * position + 1;
         }
-        
+
         private int RightChildIndex(int position)
         {
             return 2 * position + 2;
         }
-        
+
         private bool HasLeftChild(int position)
         {
             return LeftChildIndex(position) < Size;
         }
-        
+
         private bool HasRightChild(int position)
         {
             return RightChildIndex(position) < Size;
         }
-        
+
         private void Swap(int index1, int index2)
         {
             Station temp = Heap[index1];

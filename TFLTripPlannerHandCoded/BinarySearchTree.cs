@@ -11,7 +11,7 @@ public class BinarySearchTree<TKey, TValue>
     where TKey : IComparable<TKey>
 {
     private Node<TKey, TValue> _root;
-    
+
     public Node<TKey, TValue> GetNode(TKey key)
     {
         return GetNode(_root, key);
@@ -23,7 +23,7 @@ public class BinarySearchTree<TKey, TValue>
         {
             throw new Exception($"Key '{key}' Not Found");
         }
-        
+
         return node.Key.CompareTo(key) switch
         {
             0 => node,
@@ -31,7 +31,7 @@ public class BinarySearchTree<TKey, TValue>
             _ => GetNode(node.Right, key)
         };
     }
-    
+
     public void Add(TKey key, TValue value)
     {
         if (null == _root)
@@ -41,10 +41,10 @@ public class BinarySearchTree<TKey, TValue>
                 Key = key,
                 Value = value
             };
-            
+
             return;
         }
-        
+
         Add(_root, key, value);
     }
 
@@ -69,10 +69,10 @@ public class BinarySearchTree<TKey, TValue>
 
                 return;
             }
-            
+
             Add(node.Left, key, value);
         }
-        
+
         if (null == node.Right)
         {
             node.Right = new Node<TKey, TValue>
@@ -83,7 +83,7 @@ public class BinarySearchTree<TKey, TValue>
 
             return;
         }
-            
+
         Add(node.Right, key, value);
     }
 

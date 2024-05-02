@@ -3,22 +3,23 @@ namespace TFLTripPlannerHandCoded;
 public class CustomList<T>
 {
     private T[] items;
-    private int capacity; 
+    private int capacity;
     public int Count { get; private set; }
-        
+
     public CustomList()
     {
         capacity = 8;
         items = new T[capacity];
         Count = 0;
     }
-    
+
     public void Add(T item)
     {
         if (Count >= capacity)
         {
             IncreaseCapacity();
         }
+
         items[Count++] = item;
     }
 
@@ -30,6 +31,7 @@ public class CustomList<T>
         {
             newItems[i] = items[i];
         }
+
         items = newItems;
     }
 
@@ -48,29 +50,30 @@ public class CustomList<T>
             items[index] = value;
         }
     }
-    
+
     public void Insert(int index, T item)
     {
         if (index < 0 || index > Count)
             throw new ArgumentOutOfRangeException("Index out of range");
         if (Count >= capacity)
             IncreaseCapacity();
-    
+
         for (int i = Count; i > index; i--)
         {
             items[i] = items[i - 1];
         }
+
         items[index] = item;
         Count++;
     }
-    
+
     public T First()
     {
         if (Count == 0)
             throw new InvalidOperationException("The list is empty.");
         return items[0];
     }
-    
+
     public T FirstOrDefault(Func<T, bool> condition)
     {
         for (int i = 0; i < Count; i++)
@@ -78,16 +81,17 @@ public class CustomList<T>
             if (condition(items[i]))
                 return items[i];
         }
+
         return default(T);
     }
-    
+
     public T Last()
     {
         if (Count == 0)
             throw new InvalidOperationException("The list is empty.");
         return items[Count - 1];
     }
-    
+
     public int IndexOf(T item)
     {
         for (int i = 0; i < Count; i++)
@@ -97,9 +101,10 @@ public class CustomList<T>
             if (items[i] != null && items[i].Equals(item))
                 return i;
         }
+
         return -1;
     }
-    
+
     public void Clear()
     {
         // Optional to nullify references
@@ -107,8 +112,8 @@ public class CustomList<T>
         {
             items[i] = default(T);
         }
+
         // Can just be this if refs don't need nullifying
         Count = 0;
     }
 }
-
