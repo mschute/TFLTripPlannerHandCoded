@@ -4,7 +4,7 @@ namespace TFLTripPlannerHandCoded;
 public class Station : IComparer<Station>
 {
     public string Name { get; }
-    public List<Connection> Connections { get; }
+    public CustomList<Connection> Connections { get; }
 
     public double TimeFromStart { get; set; }
     public bool Visited { get; set; }
@@ -16,7 +16,7 @@ public class Station : IComparer<Station>
     public Station(string name)
     {
         Name = name;
-        Connections = new List<Connection>();
+        Connections = new CustomList<Connection>();
         TimeFromStart = double.PositiveInfinity;
         Visited = false;
         Previous = null;
