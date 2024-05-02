@@ -49,12 +49,66 @@ public class CustomList<T>
         }
     }
     
-    //TODO Need Insert function
-    //TODO Need First function
-    //TODO Need Last function
-    //TODO Need IndexOf function
-    //Note: See London Underground for where and how these functions are used
+    public void Insert(int index, T item)
+    {
+        if (index < 0 || index > Count)
+            throw new ArgumentOutOfRangeException("Index out of range");
+        if (Count >= capacity)
+            IncreaseCapacity();
     
-    //TODO Need Clear function for functionality in ConsoleView
+        for (int i = Count; i > index; i--)
+        {
+            items[i] = items[i - 1];
+        }
+        items[index] = item;
+        Count++;
+    }
+    
+    public T First()
+    {
+        if (Count == 0)
+            throw new InvalidOperationException("The list is empty.");
+        return items[0];
+    }
+    
+    public T FirstOrDefault(Func<T, bool> condition)
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            if (condition(items[i]))
+                return items[i];
+        }
+        return default(T);
+    }
+    
+    public T Last()
+    {
+        if (Count == 0)
+            throw new InvalidOperationException("The list is empty.");
+        return items[Count - 1];
+    }
+    
+    public int IndexOf(T item)
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            if (items[i] == null && item == null)
+                return i;
+            if (items[i] != null && items[i].Equals(item))
+                return i;
+        }
+        return -1;
+    }
+    
+    public void Clear()
+    {
+        // Optional to nullify references
+        for (int i = 0; i < Count; i++)
+        {
+            items[i] = default(T);
+        }
+        // Can just be this if refs don't need nullifying
+        Count = 0;
+    }
 }
 

@@ -1,3 +1,5 @@
+using TFLTripPlannerHandCoded;
+
 namespace TFLTripPlanner
 {
     public class HandCodedMinHeap
