@@ -71,6 +71,8 @@ public class BinarySearchTree<TKey, TValue>
             }
 
             Add(node.Left, key, value);
+
+            return;
         }
 
         if (null == node.Right)

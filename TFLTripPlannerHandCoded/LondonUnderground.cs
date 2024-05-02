@@ -12,7 +12,7 @@ public static class LondonUnderground
     {
         Stations = new CustomDictionary<string, Station>();
         Connections = new CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>>();
-        LoadDataFromCSV("../../../TestData/TestData3.csv");
+        LoadDataFromCSV("../../../TestData/TestData1.csv");
 
         ConsoleView view = new ConsoleView();
     }
@@ -197,9 +197,10 @@ public static class LondonUnderground
 
     private static void ResetStationData()
     {
-        for (int i = 0; i < Stations.Keys.Count; i++)
+        var keys = Stations.Keys;
+        for (int i = 0; i < keys.Count; i++)
         {
-            Station station = Stations.GetValue(Stations.Keys[i]);
+            Station station = Stations.GetValue(keys[i]);
             station.TimeFromStart = double.PositiveInfinity;
             station.Visited = false;
             station.Previous = null;
