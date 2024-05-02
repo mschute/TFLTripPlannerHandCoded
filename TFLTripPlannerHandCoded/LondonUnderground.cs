@@ -1,22 +1,17 @@
-using System.Runtime.CompilerServices;
-using TFLTripPlanner;
-
 namespace TFLTripPlannerHandCoded;
 
-public class LondonUnderground
+public static class LondonUnderground
 {
     //{Station name : Station Object}
-    public static CustomDictionary Stations;
+    public static CustomDictionary<string, Station> Stations { get; set; }
     //{Line name : Connections on that line}
-    public static CustomDictionary Connections;
-    public static CustomList<Connection> Connectionlist;
-
+    public static CustomDictionary<string, CustomDictionary<string ,CustomList<Connection>>> Connections { get; set; }
 
     public static void Start()
     {
-        // Stations = new Dictionary<string, Station>();
-        // Connections = new Dictionary<string, Dictionary<string, List<Connection>>>();
-        LoadDataFromCSV("TestData/TestData3.csv");
+        Stations = new CustomDictionary<string, Station>();
+        Connections = new CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>>();
+        LoadDataFromCSV("TestData/TestData1.csv");
         
         
         //// //Print Graph
@@ -45,7 +40,7 @@ public class LondonUnderground
         // }
         
         //Organising Stations Dict in alphabetical order.
-        //Stations = Stations.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+        //Stations = Stations.OrderBy(x => x.Key).ToCustomDictionary(x => x.Key, x => x.Value);
         
         ConsoleView view = new ConsoleView();
     }
@@ -68,140 +63,110 @@ public class LondonUnderground
 
     private static string GetNetworkStatus(string input)
     {
-        string closedTracksMessage = "Closed Tracks:\n";
-        string delaysMessage = "Delayed Stations:\n";
-
-        CustomList<string> lineKeys = Connections.GetKeys();
-        for (int i = 0; i < lineKeys.Count; i++)
+        string closedTracksMessage = "";
+        string delaysMessage = "";
+        
+        for (int i = 0; i < Connections.Keys.Count; i++)
         {
-            string line = lineKeys[i];
-            CustomDictionary stationsDictionary = Connections.FindEntryValue(line) as CustomDictionary;
-            if (stationsDictionary == null)
-                continue;
-
-            CustomList<string> stationKeys = stationsDictionary.GetKeys();
-            for (int j = 0; j < stationKeys.Count; j++)
+            string line = Connections.Keys[i];
+            
+            for (int j = 0; j < Connections[line].Keys.Count; j++)
             {
-                string station = stationKeys[j];
-                CustomList<Connection> connectionsList = stationsDictionary.FindEntryValue(station) as CustomList<Connection>;
-                if (connectionsList == null)
-                    continue;
-
-                for (i = 0; i < connectionsList.Count; i++)
+                string station = Connections[line].Keys[j];
+                for (int k = 0; k < Connections[line][station].Count; k++)
                 {
-                    if (!connectionsList[i].Open)
+                    if (!Connections[line][station][k].Open)
                     {
-                        closedTracksMessage += $"Connection from {station} to {connectionsList[i].DestinationStation.Name} on {line}\n";
+                        closedTracksMessage = closedTracksMessage + $"Connection from {station} to {Connections[line][station][k].DestinationStation.Name} on {line}\n";
                     }
-                    if (connectionsList[i].Delay > 0)
+                    if (Connections[line][station][k].Delay > 0)
                     {
-                        delaysMessage += $"Connection from {station} to {connectionsList[i].DestinationStation.Name} on {line} with Delay {connectionsList[i].Delay} mins\n";
+                        delaysMessage = delaysMessage + $"Connection from {station} to {Connections[line][station][k].DestinationStation.Name} on {line} with Delay {Connections[line][station][k].Delay} mins\n";
                     }
                 }
             }
         }
-        
         switch (input)
         {
             case "closed":
-                return closedTracksMessage;
+            return closedTracksMessage;
+
             case "delays":
-                return delaysMessage;
-            default:
-                return "Invalid input. Please specify 'closed' or 'delays'.";
+            return delaysMessage;
+        }
+        return "";
+    }
+
+    public static void HandleUserInput(string response, CustomList<string> options)
+    {
+        switch (response)
+        {
+            case "calculate shortest path":
+                var shortest = ShortestPath(options[0], options[1]);
+                PrintShortestPath(shortest);
+                break;
+            
+            case "Add Track Section Delay":
+                Connections[options[0]][options[1]][int.Parse(options[2])].Delay = int.Parse(options[3]);
+                break;
+            
+            case "Remove Track Section Delay":
+                Connections[options[0]][options[1]][int.Parse(options[2])].Delay = 0;
+                break;
+            
+            case "Open Track Section":
+                Connections[options[0]][options[1]][int.Parse(options[2])].Open = true;
+                break;
+            
+            case "Close Track Section":
+                Connections[options[0]][options[1]][int.Parse(options[2])].Open = false;
+                break;
+            
+            case "Print Station Information":
+                Station station = Stations[options[0]];
+                Console.WriteLine("-------------------------------------");
+                Console.WriteLine($"Station Details for: {station.Name}");
+                Console.WriteLine("Connections:");
+                //TODO Convert to for loop
+                for (int i = 0; i < station.Connections.Count; i++)
+                {
+                    Console.WriteLine($"  - To: {station.Connections[i].DestinationStation.Name}, Travel time: {station.Connections[i].TravelTime}, Delay: {station.Connections[i].Delay}, Open: {station.Connections[i].Open.ToString()}, Line: {station.Connections[i].Line}, Direction: {station.Connections[i].Direction}");
+                }
+                break;
         }
     }
-    
-public static void HandleUserInput(string response, string[] options)
-{
-    CustomDictionary myDictionary = (CustomDictionary)Connections.FindEntryValue(options[0]);
-    CustomList<Connection> connectionList = (CustomList<Connection>)myDictionary.FindEntryValue(options[1]);
-    connectionList[int.Parse(options[2])].Delay = 0;
 
-    switch (response)
+    private static void AddStation(string name)
     {
-        case "calculate shortest path":
-            var shortest = ShortestPath(options[0], options[1]);
-            PrintShortestPath(shortest);
-            break;
-        
-        case "Add Track Section Delay":
-            myDictionary = (CustomDictionary)Connections.FindEntryValue(options[0]);
-            connectionList = (CustomList<Connection>)myDictionary.FindEntryValue(options[1]);
-            connectionList[int.Parse(options[2])].Delay = int.Parse(options[3]);
-            break;
-        
-        case "Remove Track Section Delay":
-            myDictionary = (CustomDictionary)Connections.FindEntryValue(options[0]);
-            connectionList = (CustomList<Connection>)myDictionary.FindEntryValue(options[1]);
-            connectionList[int.Parse(options[2])].Delay = 0;
-            break;
-        
-        case "Open Track Section":
-            myDictionary = (CustomDictionary)Connections.FindEntryValue(options[0]);
-            connectionList = (CustomList<Connection>)myDictionary.FindEntryValue(options[1]);
-            connectionList[int.Parse(options[2])].Open = true;
-            break;
-        
-        case "Close Track Section":
-            myDictionary = (CustomDictionary)Connections.FindEntryValue(options[0]);
-            connectionList = (CustomList<Connection>)myDictionary.FindEntryValue(options[1]);
-            connectionList[int.Parse(options[2])].Open = false;
-            break;
-        
-        case "Print Station Information":
-            Station station = (Station)Stations.FindEntryValue(options[0]);
-            Console.WriteLine("-------------------------------------");
-            Console.WriteLine($"Station Details for: {station.Name}");
-            Console.WriteLine("Connections:");
-            foreach (var connection in station.Connections)
-            {
-                Console.WriteLine($"  - To: {connection.DestinationStation.Name}, Travel time: {connection.TravelTime}, Delay: {connection.Delay}, Open: {connection.Open.ToString()}, Line: {connection.Line}, Direction: {connection.Direction}");
-            }
-            break;
+        Stations[name] = new Station(name);
     }
-}
 
-     // private static void AddStation(string name)
-     // {
-     //     Stations[name] = new Station(name);
-     // }
-    
-     private static void AddConnection(string station1, string station2, double travelTime, string line, string direction)
-     {
-         // Check if both stations exist
-         if (Stations.FindEntryValue(station1) == null || Stations.FindEntryValue(station2) == null)
-         {
-             throw new ArgumentException("One or both of the stations do not exist.");
-         }
-
-         // Add connection to station1
-         Station station1Object = (Station)Stations.FindEntryValue(station1);
-         Station station2Object = (Station)Stations.FindEntryValue(station2);
-         station1Object.AddConnection(station2Object, travelTime, line, direction);
-
-         // Get the connections for the line
-         CustomDictionary lineConnections = (CustomDictionary)Connections.FindEntryValue(line);
-         if (lineConnections == null)
-         {
-             // If the line does not exist, create a new CustomDictionary for it
-             lineConnections = new CustomDictionary();
-             Connections.Add(line, lineConnections);
-         }
-
-         // Get the connections for station1 on the line
-         CustomList<Connection> station1Connections = (CustomList<Connection>)lineConnections.FindEntryValue(station1);
-         if (station1Connections == null)
-         {
-             // If the station does not exist, create a new CustomList for it
-             station1Connections = new CustomList<Connection>();
-             lineConnections.Add(station1, station1Connections);
-         }
-
-         // Add the new connection to the list
-         station1Connections.Add(station1Object.Connections.Last());
-     }
-     
+    private static void AddConnection(string station1, string station2, double travelTime, string line, string direction)
+    {
+        if (!Stations.ContainsKey(station1) || !Stations.ContainsKey(station2))
+        {
+            throw new ArgumentException("One or both of the stations do not exist.");
+        }
+        
+        Stations[station1].AddConnection(Stations[station2], travelTime, line, direction);
+        
+        //Adding all connections for station1 in at the given line to the Connections list
+        if (Connections[line].ContainsKey(station1))
+        {
+            // If the inner key exists, add the item to the list associated with that inner key
+            //TODO This is using IEnumerable Link function Last, need to create Last function in Custom List
+            Connections[line][station1].Add(Stations[station1].Connections.Last());
+        }
+        else
+        {
+            // If the inner key does not exist, create a new list and add the item to it
+            //TODO This is using IEnumerable Link function Last, need to create Last function in Custom List
+            var newCustomList = new CustomList<Connection> { Stations[station1].Connections.Last() };
+                
+            // Add the inner key along with the list to the inner dictionary
+            Connections[line].Add(station1, newCustomList);
+        }
+    }
     private static void LoadDataFromCSV(string filePath) 
     { 
         using (var reader = new StreamReader(filePath)) 
@@ -225,36 +190,27 @@ public static void HandleUserInput(string response, string[] options)
                     continue; // Skip this line and move to the next one
                 }
 
-                double travelTime = unImpededTime;
                 string trainLine = lineName;
 
                 // Add stations and connections
-                Station bStationObject = new Station(stationB);
-                Stations.Add(stationA , new Station(stationA));
-                Stations.Add(stationB , bStationObject);
-
-                // if (!Stations.ContainsKey(stationA))
-                // {
-
-                //     AddStation(stationA);
-                // }
-                // if (!Stations.ContainsKey(stationB))
-                // {
-                //     AddStation(stationB);
-                // }
+                if (!Stations.ContainsKey(stationA))
+                {
+                    AddStation(stationA);
+                }
+                if (!Stations.ContainsKey(stationB))
+                {
+                    AddStation(stationB);
+                }
                 
-                Connections.Add(trainLine, new Connection(bStationObject, travelTime, trainLine, direction));
-
-
-                // if (!Connections.ContainsKey(trainLine))
-                // {
-                //     Connections[trainLine] = new Dictionary<string, List<Connection>>();
-                // }
+                if (!Connections.ContainsKey(trainLine))
+                {
+                    Connections[trainLine] = new CustomDictionary<string, CustomList<Connection>>();
+                }
 
                 // Using un-impeded running time as weight
-                
+                double travelTime = unImpededTime;
 
-                // AddConnection(stationA, stationB, travelTime, trainLine, direction);
+                AddConnection(stationA, stationB, travelTime, trainLine, direction);
                 
             }
             
@@ -263,10 +219,9 @@ public static void HandleUserInput(string response, string[] options)
 
     private static void ResetStationData()
     {
-        CustomList<string> stationKeys = Stations.GetKeys();
-        for (int i = 0; i < stationKeys.Count; i++) 
+        for (int i = 0; i < Stations.Keys.Count; i++)
         {
-            Station station = (Station)Stations.FindEntryValue(stationKeys[i]);
+            Station station = Stations.GetValue(Stations.Keys[i]);
             station.TimeFromStart = double.PositiveInfinity;
             station.Visited = false;
             station.Previous = null;
@@ -274,42 +229,42 @@ public static void HandleUserInput(string response, string[] options)
         }
     }
 
-    private static (List<(Station, string)>, int) ShortestPath(string startName, string endName)
+    private static (CustomList<(Station, string)>, int) ShortestPath(string startName, string endName)
     {
         int changes = 0;        
         //Reset all stations:
         ResetStationData();
         
         //Assign start station
-        Station startStation = (Station)Stations.FindEntryValue(startName);
-
+        Station startStation = Stations[startName];
         startStation.TimeFromStart = 0;
-        
+
+        var comparer = new StationComparer();
         //Comparer object passed into sorted set, and ordering the stations in this sortedSet by time from start
-        HandCodedMinHeap unexploredStations = new HandCodedMinHeap(1);
-        unexploredStations.Insert(startStation);
+        var unexploredStations = new SortedSet<Station>(comparer);
+        unexploredStations.Add(startStation);
         
         //Finding the shortest path from start to end
 
         //While there are stations to be explored
-        while (unexploredStations.Size > 0)
+        while (unexploredStations.Count > 0)
         {
             //Current station is the one at the front of the queue (i.e unexploredStations.min)
-            var currentStation = unexploredStations.Root;
+            var currentStation = unexploredStations.Min;
 
-            for (int i = 0; i < currentStation.Connections.Count; i++)
+            //TODO Possibly change this to a for loop
+            for (int i = 0; i < currentStation.Connections.Count)
             {
-                var connection = currentStation.Connections[i];
-                if (connection.Open)
+                if (currentStation.Connections[i].Open)
                 {
                     int change = 0;
-                    var neighborStation = connection.DestinationStation;
-                    if (currentStation.currentLine != connection.Line && currentStation.currentLine != "")
+                    var neighborStation = currentStation.Connections[i].DestinationStation;
+                    if (currentStation.currentLine != currentStation.Connections[i].Line && currentStation.currentLine != "")
                     {    
                         change = 2;
                     }
                     
-                    var tentativeTravelTime = currentStation.TimeFromStart + connection.Delay + connection.TravelTime + change;
+                    var tentativeTravelTime = currentStation.TimeFromStart + currentStation.Connections[i].Delay + currentStation.Connections[i].TravelTime + change;
 
                     
                     //Compare current neighbouring stations time from start with the current stations time from start, plus connection weight
@@ -318,24 +273,24 @@ public static void HandleUserInput(string response, string[] options)
                     {
                         neighborStation.TimeFromStart = tentativeTravelTime;
                         neighborStation.Previous = currentStation;
-                        neighborStation.currentLine = connection.Line;
+                        neighborStation.currentLine = currentStation.Connections[i].Line;
 
-                        if (!unexploredStations.Has(neighborStation))
+                        if (!unexploredStations.Contains(neighborStation))
                         {
-                            unexploredStations.Insert(neighborStation);
+                            unexploredStations.Add(neighborStation);
                         }
                     }
                 }
             }
             //After current station has been explored, remove it from the front of the queue    
-            unexploredStations.Delete(currentStation);
+            unexploredStations.Remove(currentStation);
             currentStation.Visited = true;
         }
         
         //A list of tuples, current station (Station) and a string holding, previous station and line taken (String)
-        var shortestPath = new List<(Station, string)>();
+        var shortestPath = new CustomList<(Station, string)>();
         Station next = null;
-        var current = (Station)Stations.FindEntryValue(endName);
+        var current = Stations[endName];
         var currentLine = "";
         Connection previousConnection = null;
         Connection nextConnection = null;
@@ -346,10 +301,12 @@ public static void HandleUserInput(string response, string[] options)
             if (current.Previous != null)
             {
                 current.Next = next;
+                //TODO Possibly need to chang this from FirstOrDefault to newly created First method in CustomList
                 //The previous connection is found by finding the previous station, whos connection = our current station (and is open)
                 previousConnection = current.Previous.Connections.FirstOrDefault(c => c.DestinationStation == current && c.Open != false);
-                if (current != (Station)Stations.FindEntryValue(endName))
+                if (current != Stations[endName])
                 {
+                    //TODO Possibly need to chang this from FirstOrDefault to newly created First method in CustomList
                     nextConnection = current.Connections.FirstOrDefault(c => c.DestinationStation.Name == current.Next.Name & c.Open != false);   
                 }
                 if (previousConnection != null)
@@ -382,13 +339,14 @@ public static void HandleUserInput(string response, string[] options)
         return (shortestPath, changes);
     }
 
-        private static void PrintShortestPath((List<(Station, string)>, int) shortestPath)
+        private static void PrintShortestPath((CustomList<(Station, string)>, int) shortestPath)
         {
         Console.Clear();
         
         Console.WriteLine($"Route: {shortestPath.Item1.First().Item1.Name} to {shortestPath.Item1.Last().Item1.Name}:");
         
         Station prev = null;
+        //TODO Change to for loop
         foreach (var stationTuple in shortestPath.Item1)
         {
             var station = stationTuple.Item1;
@@ -412,6 +370,6 @@ public static void HandleUserInput(string response, string[] options)
             }
         }
         
-        Console.WriteLine($"Total Journey Time: {shortestPath.Item1.Last().Item1.TimeFromStart + shortestPath.Item2} minutes");
+        Console.WriteLine($"Total Journey Time: {shortestPath.Item1.Last().Item1.TimeFromStart} minutes");
     }
 }

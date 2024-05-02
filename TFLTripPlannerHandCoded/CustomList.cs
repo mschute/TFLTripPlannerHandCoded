@@ -48,5 +48,13 @@ public class CustomList<T>
             items[index] = value;
         }
     }
+    
+    //TODO Need Insert function
+    //TODO Need First function
+    //TODO Need Last function
+    //TODO Need IndexOf function
+    //Note: See London Underground for where and how these functions are used
+    
+    //TODO Need Clear function for functionality in ConsoleView
 }
 

@@ -3,7 +3,7 @@ namespace TFLTripPlannerHandCoded;
 public class ConsoleView
 {
     public MenuItem[] mainMenuItems = new MenuItem[3];
-    List<string> temp = new List<string>();
+    CustomList<string> temp = new CustomList<string>();
     
     public ConsoleView()
     {
@@ -65,9 +65,9 @@ public class ConsoleView
         {
             stationsSub = new MenuItem[LondonUnderground.Stations.Keys.Count+1];
             int index = 0;
-            foreach (var s in LondonUnderground.Stations.Keys)
+            for (int i = 0; i < LondonUnderground.Stations.Keys.Count; i++)
             {
-                var newStat = (new MenuItem(s, null));
+                var newStat = (new MenuItem(LondonUnderground.Stations.Keys[i], null));
                 newStat.SetParentMenu(parent);
                 stationsSub[index] = newStat;
                 index++;
@@ -78,9 +78,10 @@ public class ConsoleView
         {
             stationsSub = new MenuItem[LondonUnderground.Connections.Keys.Count+1];
             int index = 0;
-            foreach (var s in LondonUnderground.Connections.Keys)
+            //TODO Change to for loop
+            for (int i = 0; i < LondonUnderground.Connections.Keys.Count; i++)
             {
-                var newLine = (new MenuItem(s, null));
+                var newLine = (new MenuItem(LondonUnderground.Connections.Keys[i], null));
                 newLine.SetParentMenu(parent);
                 stationsSub[index] = newLine;
                 stationsSub[index].SetSubMenu(generateMenuList(newLine, "stationsInLine"));
@@ -90,34 +91,33 @@ public class ConsoleView
         }
         else if (menu == "stationsInLine")
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Count+1];
-            int index = 0;
-            foreach (var s in LondonUnderground.Connections[parent.Label])
+            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Keys.Count+1];
+
+            for (int i = 0; i < LondonUnderground.Connections[parent.Label].Keys.Count; i++)
             {
-                var newStat = (new MenuItem(s.Key, null));
+                var newStat = (new MenuItem(LondonUnderground.Connections[parent.Label].Keys[i], null));
                 newStat.SetParentMenu(parent);
-                stationsSub[index] = newStat;
-                stationsSub[index].SetSubMenu(generateMenuList(newStat, "connectionsForStation"));
-                index++;
+                stationsSub[i] = newStat;
+                stationsSub[i].SetSubMenu(generateMenuList(newStat, "connectionsForStation"));
             };
-            stationsSub[LondonUnderground.Connections[parent.Label].Count] = new MenuItem("Back", null);
+            stationsSub[LondonUnderground.Connections[parent.Label].Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "connectionsForStation")
         {
             stationsSub = new MenuItem[LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count+1];
-            int index = 0;
-            foreach (var s in LondonUnderground.Connections[parent.Parent.Label][parent.Label])
+
+            for (int i = 0; i < LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count; i++)
             {
-                var newStat = (new MenuItem($"{s.DestinationStation.Name} {s.Direction} {s.TravelTime}", null));
+                var connection = LondonUnderground.Connections[parent.Parent.Label][parent.Label][i];
+                var newStat = (new MenuItem($"{connection.DestinationStation.Name} {connection.Direction} {connection.TravelTime}", null));
                 newStat.SetParentMenu(parent);
-                stationsSub[index] = newStat;
-                index++;
+                stationsSub[i] = newStat;
             };
             stationsSub[LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count] = new MenuItem("Back", null);
         }
         else
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Count+1];
+            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Keys.Count+1];
 
         }
         return stationsSub;
