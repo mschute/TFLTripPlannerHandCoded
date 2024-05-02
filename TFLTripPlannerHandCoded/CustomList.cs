@@ -54,5 +54,7 @@ public class CustomList<T>
     //TODO Need Last function
     //TODO Need IndexOf function
     //Note: See London Underground for where and how these functions are used
+    
+    //TODO Need Clear function for functionality in ConsoleView
 }
 
