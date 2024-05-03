@@ -2,11 +2,15 @@ namespace TFLTripPlannerHandCoded;
 
 public class ConsoleView
 {
+    private readonly LondonUnderground _londonUnderground;
+    
     public MenuItem[] mainMenuItems = new MenuItem[3];
     CustomList<string> temp = new CustomList<string>();
 
-    public ConsoleView()
+    public ConsoleView(LondonUnderground londonUnderground)
     {
+        _londonUnderground = londonUnderground;
+        
         Console.CursorVisible = false;
         InitializeMenu();
         NavigateMenu(mainMenuItems);
@@ -65,52 +69,52 @@ public class ConsoleView
 
         if (menu == "allStations")
         {
-            stationsSub = new MenuItem[LondonUnderground.Stations.Keys.Count + 1];
-            for (int i = 0; i < LondonUnderground.Stations.Keys.Count; i++)
+            stationsSub = new MenuItem[_londonUnderground.Stations.Keys.Count + 1];
+            for (int i = 0; i < _londonUnderground.Stations.Keys.Count; i++)
             {
-                var newStat = (new MenuItem(LondonUnderground.Stations.Keys[i], null));
+                var newStat = (new MenuItem(_londonUnderground.Stations.Keys[i], null));
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
             }
             
-            stationsSub[LondonUnderground.Stations.Keys.Count] = new MenuItem("Back", null);
+            stationsSub[_londonUnderground.Stations.Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "allLines")
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections.Keys.Count + 1];
+            stationsSub = new MenuItem[_londonUnderground.Connections.Keys.Count + 1];
             
-            for (int i = 0; i < LondonUnderground.Connections.Keys.Count; i++)
+            for (int i = 0; i < _londonUnderground.Connections.Keys.Count; i++)
             {
-                var newLine = (new MenuItem(LondonUnderground.Connections.Keys[i], null));
+                var newLine = (new MenuItem(_londonUnderground.Connections.Keys[i], null));
                 newLine.SetParentMenu(parent);
                 stationsSub[i] = newLine;
                 stationsSub[i].SetSubMenu(generateMenuList(newLine, "stationsInLine"));
             }
             
-            stationsSub[LondonUnderground.Connections.Keys.Count] = new MenuItem("Back", null);
+            stationsSub[_londonUnderground.Connections.Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "stationsInLine")
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Keys.Count + 1];
+            stationsSub = new MenuItem[_londonUnderground.Connections[parent.Label].Keys.Count + 1];
 
-            for (int i = 0; i < LondonUnderground.Connections[parent.Label].Keys.Count; i++)
+            for (int i = 0; i < _londonUnderground.Connections[parent.Label].Keys.Count; i++)
             {
-                var newStat = (new MenuItem(LondonUnderground.Connections[parent.Label].Keys[i], null));
+                var newStat = (new MenuItem(_londonUnderground.Connections[parent.Label].Keys[i], null));
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
                 stationsSub[i].SetSubMenu(generateMenuList(newStat, "connectionsForStation"));
             }
 
             ;
-            stationsSub[LondonUnderground.Connections[parent.Label].Keys.Count] = new MenuItem("Back", null);
+            stationsSub[_londonUnderground.Connections[parent.Label].Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "connectionsForStation")
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count + 1];
+            stationsSub = new MenuItem[_londonUnderground.Connections[parent.Parent.Label][parent.Label].Count + 1];
 
-            for (int i = 0; i < LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count; i++)
+            for (int i = 0; i < _londonUnderground.Connections[parent.Parent.Label][parent.Label].Count; i++)
             {
-                var connection = LondonUnderground.Connections[parent.Parent.Label][parent.Label][i];
+                var connection = _londonUnderground.Connections[parent.Parent.Label][parent.Label][i];
                 var newStat =
                     (new MenuItem(
                         $"{connection.DestinationStation.Name} {connection.Direction} {connection.TravelTime}", null));
@@ -119,12 +123,12 @@ public class ConsoleView
             }
 
             ;
-            stationsSub[LondonUnderground.Connections[parent.Parent.Label][parent.Label].Count] =
+            stationsSub[_londonUnderground.Connections[parent.Parent.Label][parent.Label].Count] =
                 new MenuItem("Back", null);
         }
         else
         {
-            stationsSub = new MenuItem[LondonUnderground.Connections[parent.Label].Keys.Count + 1];
+            stationsSub = new MenuItem[_londonUnderground.Connections[parent.Label].Keys.Count + 1];
         }
 
         return stationsSub;
@@ -210,7 +214,7 @@ public class ConsoleView
                     else
                     {
                         // Perform action based on selected menu item
-                        if (LondonUnderground.Stations.ContainsKey(menuItems[selectedItemIndex].Label))
+                        if (_londonUnderground.Stations.ContainsKey(menuItems[selectedItemIndex].Label))
                         {
                             if (menuItems[selectedItemIndex].Parent.Parent.Label == "Customer")
                             {
@@ -226,19 +230,19 @@ public class ConsoleView
 
                                 if (temp.Count == 2)
                                 {
-                                    LondonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
+                                    _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
                                 }
                             }
                             else
                             {
                                 temp.Clear();
                                 temp.Add(menuItems[selectedItemIndex].Label);
-                                LondonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
+                                _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
                             }
                         }
                         else if (menuItems[selectedItemIndex].Parent.Parent != null)
                         {
-                            if (LondonUnderground.Connections.ContainsKey(menuItems[selectedItemIndex].Parent.Parent
+                            if (_londonUnderground.Connections.ContainsKey(menuItems[selectedItemIndex].Parent.Parent
                                     .Label))
                             {
                                 temp.Clear();
@@ -255,13 +259,13 @@ public class ConsoleView
                                     temp.Add(number);
                                 }
 
-                                LondonUnderground.HandleUserInput(
+                                _londonUnderground.HandleUserInput(
                                     menuItems[selectedItemIndex].Parent.Parent.Parent.Label, temp);
                             }
                         }
                         else
                         {
-                            LondonUnderground.HandleUserInput(menuItems[selectedItemIndex].Label);
+                            _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Label);
                         }
 
                         Console.WriteLine("Press any key to continue...");

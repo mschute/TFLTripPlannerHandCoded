@@ -1,23 +1,25 @@
 namespace TFLTripPlannerHandCoded;
 
-public static class LondonUnderground
+public class LondonUnderground
 {
     //{Station name : Station Object}
-    public static CustomDictionary<string, Station> Stations { get; set; }
+    private CustomDictionary<string, Station> _stations = new();
 
     //{Line name : Connections on that line}
-    public static CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> Connections { get; set; }
+    private CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> _connections = new();
 
-    public static void Start()
+    public CustomDictionary<string, Station> Stations => _stations;
+
+    public CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> Connections => _connections;
+
+    public void Start()
     {
-        Stations = new CustomDictionary<string, Station>();
-        Connections = new CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>>();
-        LoadDataFromCSV("../../../TestData/TestData1.csv");
+        LoadMapData.LoadDataFromCSV("../../../TestData/TestData1.csv", out _stations, out _connections);
 
-        ConsoleView view = new ConsoleView();
+        var view = new ConsoleView(this);
     }
 
-    public static void HandleUserInput(string response)
+    public void HandleUserInput(string response)
     {
         switch (response)
         {
@@ -33,30 +35,30 @@ public static class LondonUnderground
         }
     }
 
-    private static string GetNetworkStatus(string input)
+    private string GetNetworkStatus(string input)
     {
         string closedTracksMessage = "";
         string delaysMessage = "";
 
-        for (int i = 0; i < Connections.Keys.Count; i++)
+        for (int i = 0; i < _connections.Keys.Count; i++)
         {
-            string line = Connections.Keys[i];
+            string line = _connections.Keys[i];
 
-            for (int j = 0; j < Connections[line].Keys.Count; j++)
+            for (int j = 0; j < _connections[line].Keys.Count; j++)
             {
-                string station = Connections[line].Keys[j];
-                for (int k = 0; k < Connections[line][station].Count; k++)
+                string station = _connections[line].Keys[j];
+                for (int k = 0; k < _connections[line][station].Count; k++)
                 {
-                    if (!Connections[line][station][k].Open)
+                    if (!_connections[line][station][k].Open)
                     {
                         closedTracksMessage = closedTracksMessage +
-                                              $"Connection from {station} to {Connections[line][station][k].DestinationStation.Name} on {line}\n";
+                                              $"Connection from {station} to {_connections[line][station][k].DestinationStation.Name} on {line}\n";
                     }
 
-                    if (Connections[line][station][k].Delay > 0)
+                    if (_connections[line][station][k].Delay > 0)
                     {
                         delaysMessage = delaysMessage +
-                                        $"Connection from {station} to {Connections[line][station][k].DestinationStation.Name} on {line} with Delay {Connections[line][station][k].Delay} mins\n";
+                                        $"Connection from {station} to {_connections[line][station][k].DestinationStation.Name} on {line} with Delay {_connections[line][station][k].Delay} mins\n";
                     }
                 }
             }
@@ -74,33 +76,33 @@ public static class LondonUnderground
         return "";
     }
 
-    public static void HandleUserInput(string response, CustomList<string> options)
+    public void HandleUserInput(string response, CustomList<string> options)
     {
         switch (response)
         {
             case "calculate shortest path":
-                var shortest = ShortestPath(options[0], options[1]);
+                var shortest = RouteFinder.findRoute(_stations, options[0], options[1]);
                 PrintShortestPath(shortest);
                 break;
 
             case "Add Track Section Delay":
-                Connections[options[0]][options[1]][int.Parse(options[2])].Delay = int.Parse(options[3]);
+                _connections[options[0]][options[1]][int.Parse(options[2])].Delay = int.Parse(options[3]);
                 break;
 
             case "Remove Track Section Delay":
-                Connections[options[0]][options[1]][int.Parse(options[2])].Delay = 0;
+                _connections[options[0]][options[1]][int.Parse(options[2])].Delay = 0;
                 break;
 
             case "Open Track Section":
-                Connections[options[0]][options[1]][int.Parse(options[2])].Open = true;
+                _connections[options[0]][options[1]][int.Parse(options[2])].Open = true;
                 break;
 
             case "Close Track Section":
-                Connections[options[0]][options[1]][int.Parse(options[2])].Open = false;
+                _connections[options[0]][options[1]][int.Parse(options[2])].Open = false;
                 break;
 
             case "Print Station Information":
-                Station station = Stations[options[0]];
+                Station station = _stations[options[0]];
                 Console.WriteLine("-------------------------------------");
                 Console.WriteLine($"Station Details for: {station.Name}");
                 Console.WriteLine("Connections:");
@@ -114,241 +116,30 @@ public static class LondonUnderground
         }
     }
 
-    private static void AddStation(string name)
-    {
-        Stations[name] = new Station(name);
-    }
-
-    private static void AddConnection(string station1, string station2, double travelTime, string line,
-        string direction)
-    {
-        if (!Stations.ContainsKey(station1) || !Stations.ContainsKey(station2))
-        {
-            throw new ArgumentException("One or both of the stations do not exist.");
-        }
-
-        Stations[station1].AddConnection(Stations[station2], travelTime, line, direction);
-
-        //Adding all connections for station1 in at the given line to the Connections list
-        if (Connections[line].ContainsKey(station1))
-        {
-            // If the inner key exists, add the item to the list associated with that inner key
-            Connections[line][station1].Add(Stations[station1].Connections.Last());
-        }
-        else
-        {
-            // If the inner key does not exist, create a new list and add the item to it
-            var newCustomList = new CustomList<Connection>();
-            newCustomList.Add(Stations[station1].Connections.Last());
-
-            // Add the inner key along with the list to the inner dictionary
-            Connections[line].Add(station1, newCustomList);
-        }
-    }
-
-    private static void LoadDataFromCSV(string filePath)
-    {
-        using (var reader = new StreamReader(filePath))
-        {
-            // Skip the header line
-            reader.ReadLine();
-
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                var values = line.Split(',');
-
-                string lineName = values[0];
-                string direction = values[1];
-                string stationA = values[2];
-                string stationB = values[3];
-                double distanceKM, unImpededTime;
-                if (!double.TryParse(values[4], out distanceKM) || !double.TryParse(values[5], out unImpededTime))
-                {
-                    //Console.WriteLine("Error parsing distance or time values in line: " + line);
-                    continue; // Skip this line and move to the next one
-                }
-
-                string trainLine = lineName;
-
-                // Add stations and connections
-                if (!Stations.ContainsKey(stationA))
-                {
-                    AddStation(stationA);
-                }
-
-                if (!Stations.ContainsKey(stationB))
-                {
-                    AddStation(stationB);
-                }
-
-                if (!Connections.ContainsKey(trainLine))
-                {
-                    Connections[trainLine] = new CustomDictionary<string, CustomList<Connection>>();
-                }
-
-                // Using un-impeded running time as weight
-                double travelTime = unImpededTime;
-
-                AddConnection(stationA, stationB, travelTime, trainLine, direction);
-            }
-        }
-    }
-
-    private static void ResetStationData()
-    {
-        var keys = Stations.Keys;
-        for (int i = 0; i < keys.Count; i++)
-        {
-            Station station = Stations.GetValue(keys[i]);
-            station.TimeFromStart = double.PositiveInfinity;
-            station.Visited = false;
-            station.Previous = null;
-            station.currentLine = "";
-        }
-    }
-
-    private static (CustomList<(Station, string)>, int) ShortestPath(string startName, string endName)
-    {
-        int changes = 0;
-        //Reset all stations:
-        ResetStationData();
-
-        //Assign start station
-        Station startStation = Stations[startName];
-        startStation.TimeFromStart = 0;
-
-        var comparer = new StationComparer();
-        //Comparer object passed into sorted set, and ordering the stations in this sortedSet by time from start
-        var unexploredStations = new SortedSet<Station>(comparer);
-        unexploredStations.Add(startStation);
-
-        //Finding the shortest path from start to end
-
-        //While there are stations to be explored
-        while (unexploredStations.Count > 0)
-        {
-            //Current station is the one at the front of the queue (i.e unexploredStations.min)
-            var currentStation = unexploredStations.Min;
-
-            //TODO Possibly change this to a for loop
-            for (int i = 0; i < currentStation.Connections.Count; i++)
-            {
-                if (currentStation.Connections[i].Open)
-                {
-                    int change = 0;
-                    var neighborStation = currentStation.Connections[i].DestinationStation;
-                    if (currentStation.currentLine != currentStation.Connections[i].Line &&
-                        currentStation.currentLine != "")
-                    {
-                        change = 2;
-                    }
-
-                    var tentativeTravelTime = currentStation.TimeFromStart + currentStation.Connections[i].Delay +
-                                              currentStation.Connections[i].TravelTime + change;
-
-
-                    //Compare current neighbouring stations time from start with the current stations time from start, plus connection weight
-                    //to neighbouring station
-                    if (tentativeTravelTime < neighborStation.TimeFromStart)
-                    {
-                        neighborStation.TimeFromStart = tentativeTravelTime;
-                        neighborStation.Previous = currentStation;
-                        neighborStation.currentLine = currentStation.Connections[i].Line;
-
-                        if (!unexploredStations.Contains(neighborStation))
-                        {
-                            unexploredStations.Add(neighborStation);
-                        }
-                    }
-                }
-            }
-
-            //After current station has been explored, remove it from the front of the queue    
-            unexploredStations.Remove(currentStation);
-            currentStation.Visited = true;
-        }
-
-        //A list of tuples, current station (Station) and a string holding, previous station and line taken (String)
-        var shortestPath = new CustomList<(Station, string)>();
-        Station next = null;
-        var current = Stations[endName];
-        var currentLine = "";
-        Connection previousConnection = null;
-        Connection nextConnection = null;
-
-        //Build path from end to start based on the .Previous attributes of each station
-        while (current != null)
-        {
-            if (current.Previous != null)
-            {
-                current.Next = next;
-                //The previous connection is found by finding the previous station, whos connection = our current station (and is open)
-                previousConnection =
-                    current.Previous.Connections.FirstOrDefault(c =>
-                        c.DestinationStation == current && c.Open != false);
-                if (current != Stations[endName])
-                {
-                    nextConnection = current.Connections.FirstOrDefault(c =>
-                        c.DestinationStation.Name == current.Next.Name & c.Open != false);
-                }
-
-                if (previousConnection != null)
-                {
-                    //If the line or direction changes, update the current line, and add line change message
-                    if ($"{previousConnection.Line} {previousConnection.Direction}" != currentLine)
-                    {
-                        if (currentLine != "")
-                        {
-                            var lineChangeMessage = "";
-                            if (next != null)
-                            {
-                                changes += 2;
-                                //shortestPath.Last().Item1.TimeFromStart += 2;
-                                lineChangeMessage =
-                                    $"Change: {string.Join(",", previousConnection.Line)} {previousConnection.Direction} to {nextConnection.Line} ({nextConnection.Direction}) 2.00 mins";
-                            }
-
-                            shortestPath.Insert(0, (current, lineChangeMessage));
-                        }
-
-                        currentLine = $"{previousConnection.Line} {previousConnection.Direction}";
-                    }
-                }
-            }
-
-            next = current;
-            shortestPath.Insert(0, (current, currentLine));
-            current = current.Previous;
-        }
-
-        return (shortestPath, changes);
-    }
-
-    private static void PrintShortestPath((CustomList<(Station, string)>, int) shortestPath)
+    private static void PrintShortestPath(Route route)
     {
         Console.Clear();
 
-        Console.WriteLine($"Route: {shortestPath.Item1.First().Item1.Name} to {shortestPath.Item1.Last().Item1.Name}:");
+        Console.WriteLine($"Route: {route.Points.First().Station.Name} to {route.Points.Last().Station.Name}:");
 
         Station prev = null;
 
-        for (int i = 0; i < shortestPath.Item1.Count; i++)
+        for (int i = 0; i < route.Points.Count; i++)
         {
-            var station = shortestPath.Item1[i].Item1;
-            var line = shortestPath.Item1[i].Item2;
+            var station = route.Points[i].Station;
+            var line = route.Points[i].Line;
 
             if (station != prev)
             {
                 if (station.Previous != null)
                 {
-                    Console.WriteLine("(" + (shortestPath.Item1.IndexOf(shortestPath.Item1[i]) + 1) + ") " +
+                    Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
                                       station.Name + " (Line: " + line + ")" + " " +
                                       (station.TimeFromStart - station.Previous.TimeFromStart));
                 }
                 else
                 {
-                    Console.WriteLine("(" + (shortestPath.Item1.IndexOf(shortestPath.Item1[i]) + 1) + ") " +
+                    Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
                                       station.Name + " (Line: " + line + ")");
                 }
 
@@ -360,6 +151,7 @@ public static class LondonUnderground
             }
         }
 
-        Console.WriteLine($"Total Journey Time: {shortestPath.Item1.Last().Item1.TimeFromStart} minutes");
+        Console.WriteLine($"Total Journey Time: {route.Points.Last().Station.TimeFromStart} minutes");
+        Console.WriteLine($"Total changes: {route.Changes}");
     }
 }

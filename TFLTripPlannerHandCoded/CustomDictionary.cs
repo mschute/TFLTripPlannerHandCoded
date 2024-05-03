@@ -2,10 +2,8 @@ namespace TFLTripPlannerHandCoded;
 
 public class CustomDictionary<TKey, TValue>
     where TKey : IComparable<TKey>
-
 {
     private readonly BinarySearchTree<TKey, TValue> _tree = new();
-    private int count = 0;
 
     public TValue this[TKey key]
     {
@@ -64,7 +62,6 @@ public class CustomDictionary<TKey, TValue>
         try
         {
             _tree.Add(key, value);
-            count++;
         }
         catch (Exception)
         {
@@ -98,10 +95,5 @@ public class CustomDictionary<TKey, TValue>
     public bool ContainsKey(TKey key)
     {
         return this[key] != null;
-    }
-
-    public int Count()
-    {
-        return count;
     }
 }

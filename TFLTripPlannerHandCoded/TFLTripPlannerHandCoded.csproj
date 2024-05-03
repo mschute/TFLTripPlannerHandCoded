@@ -11,4 +11,10 @@
       <Compile Remove="PriorityQueue.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="TestData\TestData1.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
