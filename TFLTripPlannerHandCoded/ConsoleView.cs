@@ -66,33 +66,27 @@ public class ConsoleView
         if (menu == "allStations")
         {
             stationsSub = new MenuItem[LondonUnderground.Stations.Keys.Count + 1];
-            int index = 0;
             for (int i = 0; i < LondonUnderground.Stations.Keys.Count; i++)
             {
                 var newStat = (new MenuItem(LondonUnderground.Stations.Keys[i], null));
                 newStat.SetParentMenu(parent);
-                stationsSub[index] = newStat;
-                index++;
+                stationsSub[i] = newStat;
             }
-
-            ;
+            
             stationsSub[LondonUnderground.Stations.Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "allLines")
         {
             stationsSub = new MenuItem[LondonUnderground.Connections.Keys.Count + 1];
-            int index = 0;
-            //TODO Change to for loop
+            
             for (int i = 0; i < LondonUnderground.Connections.Keys.Count; i++)
             {
                 var newLine = (new MenuItem(LondonUnderground.Connections.Keys[i], null));
                 newLine.SetParentMenu(parent);
-                stationsSub[index] = newLine;
-                stationsSub[index].SetSubMenu(generateMenuList(newLine, "stationsInLine"));
-                index++;
+                stationsSub[i] = newLine;
+                stationsSub[i].SetSubMenu(generateMenuList(newLine, "stationsInLine"));
             }
-
-            ;
+            
             stationsSub[LondonUnderground.Connections.Keys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "stationsInLine")
