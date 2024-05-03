@@ -4,6 +4,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        LondonUnderground.Start();
+        var londonUnderground = new LondonUnderground();
+        
+        londonUnderground.Start();
     }
 }
