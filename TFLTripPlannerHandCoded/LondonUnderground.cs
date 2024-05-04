@@ -14,7 +14,7 @@ public class LondonUnderground
 
     public void Start()
     {
-        LoadMapData.LoadDataFromCSV("../../../TestData/TestData1.csv", out _stations, out _connections);
+        LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out _stations, out _connections);
 
         var view = new ConsoleView(this);
     }
