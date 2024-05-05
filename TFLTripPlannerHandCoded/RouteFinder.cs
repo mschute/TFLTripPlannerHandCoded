@@ -99,11 +99,11 @@ public static class RouteFinder
                         neighborNode.CurrentLine = currentConnections[i].Line;
                         neighborNode.Direction = currentConnections[i].Direction;
                         neighborNode.TimeFromPrevious = currentConnections[i].TravelTime;
-                        
-                        if (!unexploredNodes.Has(neighborNode))
-                        {
-                            unexploredNodes.Insert(neighborNode);
-                        }
+                    }
+                    
+                    if (neighborNode.Visited == false && !unexploredNodes.Has(neighborNode))
+                    {
+                        unexploredNodes.Insert(neighborNode);
                     }
                 }
             }

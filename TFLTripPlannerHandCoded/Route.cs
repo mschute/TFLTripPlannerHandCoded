@@ -34,7 +34,7 @@ public class Route
             return false;
         }
 
-        if (Math.Abs(TotalTime - other.TotalTime) < 1e-06)
+        if (Math.Abs(TotalTime - other.TotalTime) > 1e-06)
         {
             return false;
         }
