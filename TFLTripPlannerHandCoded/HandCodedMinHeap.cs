@@ -1,20 +1,19 @@
-using TFLTripPlannerHandCoded;
-
-namespace TFLTripPlanner
+namespace TFLTripPlannerHandCoded
 {
-    public class HandCodedMinHeap
+    public class HandCodedMinHeap<T>
+        where T : class, IComparable<T>
     {
-        public Station[] Heap { get; set; }
+        public T[] Heap { get; set; }
         public int Size { get; set; }
-        public Station Root => Heap[0];
+        public T Root => Heap[0];
 
         public HandCodedMinHeap(int capacity)
         {
-            Heap = new Station[capacity];
+            Heap = new T[capacity];
             Size = 0;
         }
 
-        public void Insert(Station station)
+        public void Insert(T obj)
         {
             if (Size == Heap.Length)
             {
@@ -22,7 +21,7 @@ namespace TFLTripPlanner
             }
 
             // Insert the new station at the end of the heap
-            Heap[Size] = station;
+            Heap[Size] = obj;
             Size++;
 
             // Move the new station up to its correct position
@@ -34,7 +33,7 @@ namespace TFLTripPlanner
 
         private void MoveUp(int position)
         {
-            while (position > 0 && Heap[position].TimeFromStart < Heap[ParentIndex(position)].TimeFromStart)
+            while (position > 0 && Heap[position].CompareTo(Heap[ParentIndex(position)]) < 0)
             {
                 Swap(position, ParentIndex(position));
                 position = ParentIndex(position);
@@ -43,20 +42,19 @@ namespace TFLTripPlanner
 
         public void MoveDown(int position)
         {
-            int smallestChild;
-
             // Find the smallest child of the current station and swap them.
             // Do this until the current station is smaller than both of its children.
             while (HasLeftChild(position))
             {
-                smallestChild = LeftChildIndex(position);
-                if (HasRightChild(position) && Heap[RightChildIndex(position)].TimeFromStart <
-                    Heap[LeftChildIndex(position)].TimeFromStart)
+                var smallestChild = LeftChildIndex(position);
+                
+                if (HasRightChild(position) &&
+                    Heap[RightChildIndex(position)].CompareTo(Heap[LeftChildIndex(position)]) < 0)
                 {
                     smallestChild = RightChildIndex(position);
                 }
 
-                if (Heap[position].TimeFromStart < Heap[smallestChild].TimeFromStart)
+                if (Heap[position].CompareTo(Heap[smallestChild]) < 0)
                 {
                     break;
                 }
@@ -66,12 +64,11 @@ namespace TFLTripPlanner
             }
         }
 
-        public bool Has(Station station)
+        public bool Has(T obj)
         {
-            int position = 0;
-            for (int i = 0; i < Size; i++)
+            for (var i = 0; i < Size; i++)
             {
-                if (Heap[i] == station)
+                if (Heap[i] == obj)
                 {
                     return true;
                 }
@@ -80,13 +77,13 @@ namespace TFLTripPlanner
             return false;
         }
 
-        public void Delete(Station station)
+        public void Delete(T obj)
         {
             // Step 1: Find the station to be deleted
-            int position = 0;
-            for (int i = 0; i < Size; i++)
+            var position = 0;
+            for (var i = 0; i < Size; i++)
             {
-                if (Heap[i] == station)
+                if (Heap[i] == obj)
                 {
                     position = i;
                     break;
@@ -104,8 +101,8 @@ namespace TFLTripPlanner
 
         private void IncreaseHeapSize()
         {
-            Station[] newHeap = new Station[Heap.Length * 2];
-            for (int i = 0; i < Heap.Length; i++)
+            var newHeap = new T[Heap.Length * 2];
+            for (var i = 0; i < Heap.Length; i++)
             {
                 newHeap[i] = Heap[i];
             }
@@ -140,7 +137,7 @@ namespace TFLTripPlanner
 
         private void Swap(int index1, int index2)
         {
-            Station temp = Heap[index1];
+            T temp = Heap[index1];
             Heap[index1] = Heap[index2];
             Heap[index2] = temp;
         }

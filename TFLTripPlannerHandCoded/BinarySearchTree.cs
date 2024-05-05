@@ -10,7 +10,7 @@ public class Node<TKey, TValue>
 public class BinarySearchTree<TKey, TValue>
     where TKey : IComparable<TKey>
 {
-    private Node<TKey, TValue> _root;
+    private Node<TKey, TValue> _root = null!;
 
     public Node<TKey, TValue> GetNode(TKey key)
     {
@@ -48,7 +48,7 @@ public class BinarySearchTree<TKey, TValue>
         Add(_root, key, value);
     }
 
-    private void Add(Node<TKey, TValue> node, TKey key, TValue value)
+    private static void Add(Node<TKey, TValue> node, TKey key, TValue value)
     {
         var comparison = node.Key.CompareTo(key);
 

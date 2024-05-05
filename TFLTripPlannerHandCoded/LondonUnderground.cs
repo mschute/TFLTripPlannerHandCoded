@@ -7,9 +7,7 @@ public class LondonUnderground
 
     //{Line name : Connections on that line}
     private CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> _connections = new();
-
     public CustomDictionary<string, Station> Stations => _stations;
-
     public CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> Connections => _connections;
 
     public void Start()
@@ -80,9 +78,10 @@ public class LondonUnderground
     {
         switch (response)
         {
-            case "calculate shortest path":
-                var shortest = RouteFinder.findRoute(_stations, options[0], options[1]);
-                PrintShortestPath(shortest);
+            case "Calculate Shortest Path":
+                var shortestRoute = RouteFinder.FindRoute(_stations, options[0], options[1]);
+                Console.Clear();
+                Console.WriteLine(shortestRoute.ToString()); 
                 break;
 
             case "Add Track Section Delay":
@@ -116,42 +115,42 @@ public class LondonUnderground
         }
     }
 
-    private static void PrintShortestPath(Route route)
-    {
-        Console.Clear();
-
-        Console.WriteLine($"Route: {route.Points.First().Station.Name} to {route.Points.Last().Station.Name}:");
-
-        Station prev = null;
-
-        for (int i = 0; i < route.Points.Count; i++)
-        {
-            var station = route.Points[i].Station;
-            var line = route.Points[i].Line;
-
-            if (station != prev)
-            {
-                if (station.Previous != null)
-                {
-                    Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
-                                      station.Name + " (Line: " + line + ")" + " " +
-                                      (station.TimeFromStart - station.Previous.TimeFromStart));
-                }
-                else
-                {
-                    Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
-                                      station.Name + " (Line: " + line + ")");
-                }
-
-                prev = station;
-            }
-            else
-            {
-                Console.WriteLine(line);
-            }
-        }
-
-        Console.WriteLine($"Total Journey Time: {route.Points.Last().Station.TimeFromStart} minutes");
-        Console.WriteLine($"Total changes: {route.Changes}");
-    }
+    // private static void PrintShortestPath(Route route)
+    // {
+    //     Console.Clear();
+    //
+    //     Console.WriteLine($"Route: {route.Points.First().Station.Name} to {route.Points.Last().Station.Name}:");
+    //
+    //     Station prev = null;
+    //
+    //     for (int i = 0; i < route.Points.Count; i++)
+    //     {
+    //         var station = route.Points[i].Station;
+    //         var line = route.Points[i].Line;
+    //
+    //         if (station != prev)
+    //         {
+    //             if (station.Previous != null)
+    //             {
+    //                 Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
+    //                                   station.Name + " (Line: " + line + ")" + " " +
+    //                                   (station.TimeFromStart - station.Previous.TimeFromStart));
+    //             }
+    //             else
+    //             {
+    //                 Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
+    //                                   station.Name + " (Line: " + line + ")");
+    //             }
+    //
+    //             prev = station;
+    //         }
+    //         else
+    //         {
+    //             Console.WriteLine(line);
+    //         }
+    //     }
+    //
+    //     Console.WriteLine($"Total Journey Time: {route.Points.Last().Station.TimeFromStart} minutes");
+    //     Console.WriteLine($"Total changes: {route.Changes}");
+    // }
 }

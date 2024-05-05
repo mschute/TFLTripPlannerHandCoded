@@ -2,190 +2,146 @@ namespace TFLTripPlannerHandCoded;
 
 public static class RouteFinder
 {
-    // Should we be using a structure like this to associate the Station and the related node info
-    public class RouteNode
+    // Structure to store all the calculation related information for a station
+    private class CalcNode : IComparable<CalcNode>
     {
         public Station Station { get; }
-        public double TimeFromStart { get; set; }
-        public bool Visited { get; set; }
-        public Station Previous { get; set; }
-        public Station Next { get; set; }
+        public string Direction { get; set; }
         public string CurrentLine { get; set; }
+        public double TimeFromStart { get; set; }
+        
+        public double TimeFromPrevious { get; set; }
+        public CalcNode Previous { get; set; }
+        public CalcNode Next { get; set; }
+        public bool Visited { get; set; }
 
-        public RouteNode(Station station)
+        public CalcNode(Station station)
         {
             Station = station;
+            Direction = "";
+            CurrentLine = "";
+            TimeFromStart = double.PositiveInfinity;
+            TimeFromPrevious = 0.0;
+            Previous = null;
+            Next = null;
+            Visited = false;
         }
-    }
-    
-    public class StationLine
-    {
-        public Station Station { get; }
-        public string Line { get; }
-        // public string Direction { get; set; }
 
-        public StationLine(Station station, string line)
+        public int CompareTo(CalcNode? other)
         {
-            Station = station;
-            Line = line;
-            // Direction = direction;
+            if (other == default)
+            {
+                return 1;
+            }
+
+            var compare = TimeFromStart.CompareTo(other.TimeFromStart);
+
+            if (compare == 0)
+            {
+                return Station.Name.CompareTo(other.Station.Name);
+            }
+
+            return compare;
         }
     }
-    
-    public static Route findRoute(CustomDictionary<string, Station> stations, string startName, string endName)
+
+    public static Route FindRoute(CustomDictionary<string, Station> stations, string startName, string endName)
     {
-        // TODO If/when we switch to the RouteNode class, we should copy the stations over for calculations
-        CustomDictionary<string, RouteNode> stationNodes = new CustomDictionary<string, RouteNode>();
+        if (!stations.ContainsKey(startName) || !stations.ContainsKey(endName))
+        {
+            return null;
+        }
         
         var stationNames = stations.Keys;
-        for (int i = 0; i < stationNames.Count; i++)
+        var calcNodes = new CustomDictionary<string, CalcNode>();
+        for (var i = 0; i < stationNames.Count; i++)
         {
-            stationNodes[stationNames[i]] = new RouteNode(stations[stationNames[i]]);
+            calcNodes[stationNames[i]] = new CalcNode(stations[stationNames[i]]);
         }
-        
-        //TODO this is because the previous implementation was clearing the route related data from the stations
-        // The Stations should not contain any route calculation data and the stationNodes should be used instead
-        // var keys = stations.Keys;
-        // for (var i = 0; i < keys.Count; i++)
-        // {
-        //     var station = stations.GetValue(keys[i]);
-        //     station.TimeFromStart = double.PositiveInfinity;
-        //     station.Visited = false;
-        //     station.Previous = null;
-        //     station.Next = null;
-        //     station.CurrentLine = "";
-        // }
-
-        var keys = stationNodes.Keys;
-        for (var i = 0; i < keys.Count; i++)
-        {
-            var station = stationNodes.GetValue(keys[i]);
-            station.TimeFromStart = double.PositiveInfinity;
-            station.Visited = false;
-            station.Previous = null;
-            station.Next = null;
-            station.CurrentLine = "";
-        }
-        
-        int changes = 0;
 
         //Assign start station
-        var startRouteNode = stationNodes[startName];
-        startRouteNode.TimeFromStart = 0;
+        var startNode = calcNodes[startName];
+        startNode.TimeFromStart = 0;
+        
+        var unexploredNodes = new HandCodedMinHeap<CalcNode>(1);
+        unexploredNodes.Insert(startNode);
 
-        //TODO SortedSet is a generic collection so we can't use it in this project
-        //Comparer object passed into sorted set, and ordering the stations in this sortedSet by time from start
-        var unexploredNodes = new SortedSet<RouteNode>(new StationComparer());
-        unexploredNodes.Add(startRouteNode);
-
-        //Finding the shortest path from start to end
-
-        //While there are stations to be explored
-        while (unexploredNodes.Count > 0)
+        // Score all the nodes, recording the best times and transitions at each node
+        while (unexploredNodes.Size > 0)
         {
-            //Current station is the one at the front of the queue (i.e unexploredStations.min)
-            var currentNode = unexploredNodes.Min;
+            //Current station is the one at the front of the queue
+            var currentNode = unexploredNodes.Root;
+            var currentConnections = currentNode.Station.Connections;
 
-            for (int i = 0; i < currentNode.Station.Connections.Count; i++)
+            for (var i = 0; i < currentConnections.Count; i++)
             {
-                if (currentNode.Station.Connections[i].Open)
+                if (currentConnections[i].Open)
                 {
-                    int change = 0;
-                    var destinationStation = currentNode.Station.Connections[i].DestinationStation;
-                    var neighborNode = stationNodes[destinationStation.Name];
+                    var penalty = 0;
+                    var destinationStation = currentConnections[i].DestinationStation;
+                    var neighborNode = calcNodes[destinationStation.Name];
 
-                    if (currentNode.CurrentLine != currentNode.Station.Connections[i].Line &&
-                        currentNode.CurrentLine != "")
+                    if (currentNode.CurrentLine != currentConnections[i].Line && currentNode.CurrentLine != "")
                     {
-                        change = 2;
+                        penalty = 2;
                     }
 
-                    var tentativeTravelTime = currentNode.TimeFromStart + currentNode.Station.Connections[i].Delay +
-                    currentNode.Station.Connections[i].TravelTime + change;
+                    var tentativeTravelTime = currentNode.TimeFromStart
+                                              + currentConnections[i].Delay
+                                              + currentConnections[i].TravelTime
+                                              + penalty;
 
-
-                    //Compare current neighbouring stations time from start with the current stations time from start, plus connection weight
-                    //to neighbouring station
+                    // Only record the best time at each node
                     if (tentativeTravelTime < neighborNode.TimeFromStart)
                     {
                         neighborNode.TimeFromStart = tentativeTravelTime;
-                        neighborNode.Previous = currentNode.Station;
-                        neighborNode.CurrentLine = currentNode.Station.Connections[i].Line;
-
-                        if (!unexploredNodes.Contains(neighborNode))
+                        neighborNode.Previous = currentNode;
+                        neighborNode.CurrentLine = currentConnections[i].Line;
+                        neighborNode.Direction = currentConnections[i].Direction;
+                        neighborNode.TimeFromPrevious = currentConnections[i].TravelTime;
+                        
+                        if (!unexploredNodes.Has(neighborNode))
                         {
-                            unexploredNodes.Add(neighborNode);
+                            unexploredNodes.Insert(neighborNode);
                         }
                     }
                 }
             }
-
-            //After current station has been explored, remove it from the front of the queue    
-            unexploredNodes.Remove(currentNode);
+            
+            unexploredNodes.Delete(currentNode);
             currentNode.Visited = true;
         }
-    
-        //TODO I believe its integrating this bit that has caused the issues
 
-        //A list of tuples, current station (Station) and a string holding, previous station and line taken (String)
-        var shortestPath = new CustomList<StationLine>();
-        RouteNode next = null;
-        var current = stationNodes[endName];
-        var currentLine = "";
-        StationLine previousConnection = null;
-        StationLine nextConnection = null;
-
-        //Build path from end to start based on the .Previous attributes of each station
-        while (current != null)
+        // Build path from end to start based on the attributes of each calc node
+        var current = calcNodes[endName];
+        var next = current.Previous;
+        
+        var changes = 0;
+        var totalTime = current.TimeFromStart;
+        var shortestPath = new CustomList<RouteNode>();
+        
+        shortestPath.Add(new RouteNode(current.Station.Name, current.CurrentLine, current.TimeFromPrevious, current.Direction));
+        
+        while (next != null)
         {
-            if (current.Previous != null)
+            if (next.CurrentLine != current.CurrentLine)
             {
-
-                current.Station.Next = next.Station;
-                //The previous connection is found by finding the previous station, whos connection = our current station (and is open)
-                  previousConnection =
-                new StationLine(current.Previous, current.Previous.CurrentLine);
-
-                // previousConnection =
-                //     current.Previous.Connections.FirstOrDefault(c =>
-                //         c.DestinationStation == current.Station && c.Open != false);
-                if (current.Station != stationNodes[endName].Station)
+                if (string.IsNullOrEmpty(next.CurrentLine))
                 {
-                    nextConnection = new StationLine(current.Station, current.CurrentLine);
+                    next.CurrentLine = current.CurrentLine;
+                    next.Direction = current.Direction;
                 }
-
-                if (previousConnection != null)
+                else
                 {
-                    //If the line or direction changes, update the current line, and add line change message
-                    if ($"{previousConnection.Line}" != currentLine)
-                    {
-                        if (currentLine != "")
-                        {
-                            var lineChangeMessage = "";
-                            if (next != null)
-                            {
-                                changes += 2;
-                                //shortestPath.Last().Item1.TimeFromStart += 2;
-                                lineChangeMessage =
-                                    $"Change: {string.Join(",", previousConnection.Line)} to {nextConnection.Line} () 2.00 mins";
-                            }
-
-                            shortestPath.Insert(0, new StationLine(current.Station, lineChangeMessage));
-                        }
-
-                        currentLine = $"{previousConnection.Line}";
-                    }
+                    changes++;
                 }
             }
-
-            next = current;
-            shortestPath.Insert(0, new StationLine(current.Station, currentLine));
-            var previousStation = current.Previous;
-            current = stationNodes[previousStation.Name];
-            //current = new RouteNode(previousStation);
-            //current = current.Previous;
+            
+            shortestPath.Insert(0, new RouteNode(next.Station.Name, next.CurrentLine, next.TimeFromPrevious, next.Direction));
+            current = next;
+            next = current.Station == stations[startName] ? null : current.Previous;
         }
 
-        return new Route(shortestPath, changes, shortestPath.Last().Station.TimeFromStart);
+        return new Route(shortestPath, changes, totalTime);
     }
 }
