@@ -7,16 +7,16 @@ public class LondonUndergroundTests
     {
         LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
         
-        var points = new CustomList<RouteFinder.StationLine>();
-        points.Add(new RouteFinder.StationLine(stations["STATION A"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION B"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION D"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION E"], ""));
+        var points = new CustomList<RouteNode>();
+        points.Add(new RouteNode("STATION A", "GREEN", 0, "NA"));
+        points.Add(new RouteNode("STATION B", "GREEN", 3, "NA"));
+        points.Add(new RouteNode("STATION D", "GREEN", 5, "NA"));
+        points.Add(new RouteNode("STATION E", "GREEN", 2, "NA"));
         
         var expected = new Route(points, 0, 10.0);
         
         // Act
-        var actual = RouteFinder.findRoute(stations, "STATION A", "STATION E");
+        var actual = RouteFinder.FindRoute(stations, "STATION A", "STATION E");
         
         // Assert
         Assert.That(actual, Is.EqualTo(expected));
@@ -27,16 +27,35 @@ public class LondonUndergroundTests
     {
         LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
         
-        var points = new CustomList<RouteFinder.StationLine>();
-        points.Add(new RouteFinder.StationLine(stations["STATION E"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION D"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION B"], ""));
-        points.Add(new RouteFinder.StationLine(stations["STATION A"], ""));
+        var points = new CustomList<RouteNode>();
+        points.Add(new RouteNode("STATION E", "GREEN", 0, "NA"));
+        points.Add(new RouteNode("STATION D", "GREEN", 2, "NA"));
+        points.Add(new RouteNode("STATION B", "GREEN", 5, "NA"));
+        points.Add(new RouteNode("STATION A", "GREEN", 3, "NA"));
         
         var expected = new Route(points, 0, 10.0);
         
         // Act
-        var actual = RouteFinder.findRoute(stations, "STATION E", "STATION A");
+        var actual = RouteFinder.FindRoute(stations, "STATION E", "STATION A");
+        
+        // Assert
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void TestAToC()
+    {
+        LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
+        
+        var points = new CustomList<RouteNode>();
+        points.Add(new RouteNode("STATION A", "GREEN", 0, "NA"));
+        points.Add(new RouteNode("STATION B", "GREEN", 3, "NA"));
+        points.Add(new RouteNode("STATION C", "YELLOW", 4, "NA"));
+        
+        var expected = new Route(points, 1, 9.0);
+        
+        // Act
+        var actual = RouteFinder.FindRoute(stations, "STATION A", "STATION C");
         
         // Assert
         Assert.That(actual, Is.EqualTo(expected));

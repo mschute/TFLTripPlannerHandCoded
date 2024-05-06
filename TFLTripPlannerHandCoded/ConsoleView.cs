@@ -4,8 +4,8 @@ public class ConsoleView
 {
     private readonly LondonUnderground _londonUnderground;
     
-    public MenuItem[] mainMenuItems = new MenuItem[3];
-    CustomList<string> temp = new CustomList<string>();
+    public MenuItem[] MainMenuItems = new MenuItem[3];
+    private CustomList<string> _temp = new CustomList<string>();
 
     public ConsoleView(LondonUnderground londonUnderground)
     {
@@ -13,18 +13,18 @@ public class ConsoleView
         
         Console.CursorVisible = false;
         InitializeMenu();
-        NavigateMenu(mainMenuItems);
+        NavigateMenu(MainMenuItems);
     }
 
     private void InitializeMenu()
     {
-        mainMenuItems[0] = new MenuItem("Customer", new MenuItem[]
+        MainMenuItems[0] = new MenuItem("Customer", new MenuItem[]
         {
-            new MenuItem("calculate shortest path", null),
+            new MenuItem("Calculate Shortest Path", null),
             new MenuItem("Back", null)
         });
 
-        mainMenuItems[1] = new MenuItem("Engineer", new MenuItem[]
+        MainMenuItems[1] = new MenuItem("Engineer", new MenuItem[]
         {
             new MenuItem("Add Track Section Delay", null),
             new MenuItem("Remove Track Section Delay", null),
@@ -36,77 +36,82 @@ public class ConsoleView
             new MenuItem("Back", null)
         });
 
-        mainMenuItems[2] = new MenuItem("Exit", null);
+        MainMenuItems[2] = new MenuItem("Exit", null);
 
-        foreach (MenuItem m in mainMenuItems[0].Submenu)
+        foreach (MenuItem m in MainMenuItems[0].Submenu)
         {
-            m.SetParentMenu(mainMenuItems[0]);
+            m.SetParentMenu(MainMenuItems[0]);
         }
 
-        foreach (MenuItem m in mainMenuItems[1].Submenu)
+        foreach (MenuItem m in MainMenuItems[1].Submenu)
         {
-            m.SetParentMenu(mainMenuItems[1]);
+            m.SetParentMenu(MainMenuItems[1]);
         }
 
-        mainMenuItems[0].Submenu[0].SetSubMenu(generateMenuList(mainMenuItems[0].Submenu[0], "allStations"));
+        MainMenuItems[0].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[0].Submenu[0], "allStations"));
 
         //TODO This menu is for removing delays but its showing all stations not just the ones with delays set.
-        mainMenuItems[1].Submenu[0].SetSubMenu(generateMenuList(mainMenuItems[1].Submenu[0], "allLines"));
+        MainMenuItems[1].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[0], "allLines"));
 
-        mainMenuItems[1].Submenu[1].SetSubMenu(generateMenuList(mainMenuItems[1].Submenu[1], "allLines"));
+        MainMenuItems[1].Submenu[1].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[1], "allLines"));
 
         //TODO This menu is for removing closures on tracks but its showing all stations not just the ones closed.
-        mainMenuItems[1].Submenu[2].SetSubMenu(generateMenuList(mainMenuItems[1].Submenu[2], "allLines"));
+        MainMenuItems[1].Submenu[2].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[2], "allLines"));
 
-        mainMenuItems[1].Submenu[3].SetSubMenu(generateMenuList(mainMenuItems[1].Submenu[3], "allLines"));
-        mainMenuItems[1].Submenu[6].SetSubMenu(generateMenuList(mainMenuItems[1].Submenu[6], "allStations"));
+        MainMenuItems[1].Submenu[3].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[3], "allLines"));
+        MainMenuItems[1].Submenu[6].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[6], "allStations"));
     }
 
     //TODO Refactor this code.
-    public MenuItem[] generateMenuList(MenuItem parent, string menu)
+    public MenuItem[] GenerateMenuList(MenuItem parent, string menu)
     {
         MenuItem[] stationsSub;
 
         if (menu == "allStations")
         {
-            stationsSub = new MenuItem[_londonUnderground.Stations.Keys.Count + 1];
-            for (int i = 0; i < _londonUnderground.Stations.Keys.Count; i++)
+            var stationKeys = _londonUnderground.Stations.Keys;
+            
+            stationsSub = new MenuItem[stationKeys.Count + 1];
+            for (int i = 0; i < stationKeys.Count; i++)
             {
-                var newStat = (new MenuItem(_londonUnderground.Stations.Keys[i], null));
+                var newStat = (new MenuItem(stationKeys[i], null));
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
             }
             
-            stationsSub[_londonUnderground.Stations.Keys.Count] = new MenuItem("Back", null);
+            stationsSub[stationKeys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "allLines")
         {
-            stationsSub = new MenuItem[_londonUnderground.Connections.Keys.Count + 1];
+            var connectionKeys = _londonUnderground.Connections.Keys;
             
-            for (int i = 0; i < _londonUnderground.Connections.Keys.Count; i++)
+            stationsSub = new MenuItem[connectionKeys.Count + 1];
+            
+            for (int i = 0; i < connectionKeys.Count; i++)
             {
-                var newLine = (new MenuItem(_londonUnderground.Connections.Keys[i], null));
+                var newLine = (new MenuItem(connectionKeys[i], null));
                 newLine.SetParentMenu(parent);
                 stationsSub[i] = newLine;
-                stationsSub[i].SetSubMenu(generateMenuList(newLine, "stationsInLine"));
+                stationsSub[i].SetSubMenu(GenerateMenuList(newLine, "stationsInLine"));
             }
             
-            stationsSub[_londonUnderground.Connections.Keys.Count] = new MenuItem("Back", null);
+            stationsSub[connectionKeys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "stationsInLine")
         {
-            stationsSub = new MenuItem[_londonUnderground.Connections[parent.Label].Keys.Count + 1];
+            var connectionParentKeys = _londonUnderground.Connections[parent.Label].Keys;
+            
+            stationsSub = new MenuItem[connectionParentKeys.Count + 1];
 
-            for (int i = 0; i < _londonUnderground.Connections[parent.Label].Keys.Count; i++)
+            for (int i = 0; i < connectionParentKeys.Count; i++)
             {
-                var newStat = (new MenuItem(_londonUnderground.Connections[parent.Label].Keys[i], null));
+                var newStat = (new MenuItem(connectionParentKeys[i], null));
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
-                stationsSub[i].SetSubMenu(generateMenuList(newStat, "connectionsForStation"));
+                stationsSub[i].SetSubMenu(GenerateMenuList(newStat, "connectionsForStation"));
             }
-
-            ;
-            stationsSub[_londonUnderground.Connections[parent.Label].Keys.Count] = new MenuItem("Back", null);
+            
+            stationsSub[connectionParentKeys.Count] = new MenuItem("Back", null);
         }
         else if (menu == "connectionsForStation")
         {
@@ -121,10 +126,8 @@ public class ConsoleView
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
             }
-
-            ;
-            stationsSub[_londonUnderground.Connections[parent.Parent.Label][parent.Label].Count] =
-                new MenuItem("Back", null);
+            
+            stationsSub[_londonUnderground.Connections[parent.Parent.Label][parent.Label].Count] = new MenuItem("Back", null);
         }
         else
         {
@@ -218,26 +221,26 @@ public class ConsoleView
                         {
                             if (menuItems[selectedItemIndex].Parent.Parent.Label == "Customer")
                             {
-                                if (temp.Count < 2)
+                                if (_temp.Count < 2)
                                 {
-                                    temp.Add(menuItems[selectedItemIndex].Label);
+                                    _temp.Add(menuItems[selectedItemIndex].Label);
                                 }
                                 else
                                 {
-                                    temp.Clear();
-                                    temp.Add(menuItems[selectedItemIndex].Label);
+                                    _temp.Clear();
+                                    _temp.Add(menuItems[selectedItemIndex].Label);
                                 }
 
-                                if (temp.Count == 2)
+                                if (_temp.Count == 2)
                                 {
-                                    _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
+                                    _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, _temp);
                                 }
                             }
                             else
                             {
-                                temp.Clear();
-                                temp.Add(menuItems[selectedItemIndex].Label);
-                                _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, temp);
+                                _temp.Clear();
+                                _temp.Add(menuItems[selectedItemIndex].Label);
+                                _londonUnderground.HandleUserInput(menuItems[selectedItemIndex].Parent.Label, _temp);
                             }
                         }
                         else if (menuItems[selectedItemIndex].Parent.Parent != null)
@@ -245,10 +248,10 @@ public class ConsoleView
                             if (_londonUnderground.Connections.ContainsKey(menuItems[selectedItemIndex].Parent.Parent
                                     .Label))
                             {
-                                temp.Clear();
-                                temp.Add(menuItems[selectedItemIndex].Parent.Parent.Label);
-                                temp.Add(menuItems[selectedItemIndex].Parent.Label);
-                                temp.Add(selectedItemIndex.ToString());
+                                _temp.Clear();
+                                _temp.Add(menuItems[selectedItemIndex].Parent.Parent.Label);
+                                _temp.Add(menuItems[selectedItemIndex].Parent.Label);
+                                _temp.Add(selectedItemIndex.ToString());
 
                                 if (menuItems[selectedItemIndex].Parent.Parent.Parent.Label ==
                                     "Add Track Section Delay")
@@ -256,11 +259,11 @@ public class ConsoleView
                                     //TODO Need to validate this a a valid int.
                                     Console.WriteLine("Enter delay time in (mins)");
                                     string number = Console.ReadLine();
-                                    temp.Add(number);
+                                    _temp.Add(number);
                                 }
 
                                 _londonUnderground.HandleUserInput(
-                                    menuItems[selectedItemIndex].Parent.Parent.Parent.Label, temp);
+                                    menuItems[selectedItemIndex].Parent.Parent.Parent.Label, _temp);
                             }
                         }
                         else

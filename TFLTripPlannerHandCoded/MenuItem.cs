@@ -3,7 +3,6 @@ namespace TFLTripPlannerHandCoded;
 public class MenuItem
 {
     public string Label { get; }
-
     public MenuItem Parent { get; set; }
     public MenuItem[] Submenu { get; set; }
 

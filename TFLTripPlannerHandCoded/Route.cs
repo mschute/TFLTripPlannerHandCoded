@@ -1,38 +1,40 @@
+using System.Text;
+
 namespace TFLTripPlannerHandCoded;
 
 public class Route
 {
-    public CustomList<RouteFinder.StationLine> Points { get; }
+    public CustomList<RouteNode> Points { get; }
     public int Changes { get; }
-    public double Time { get; }
+    public double TotalTime { get; }
 
-    public Route(CustomList<RouteFinder.StationLine> points, int changes, double time)
+    public Route(CustomList<RouteNode> points, int changes, double totalTime)
     {
         Points = points;
         Changes = changes;
-        Time = time;
+        TotalTime = totalTime;
     }
 
-    public override bool Equals(object obj)
+    public override int GetHashCode()
     {
-        var route = obj as Route;
+        return HashCode.Combine(Points, Changes, TotalTime);
+    }
 
-        if (null == route)
+    public override bool Equals(object? obj) => Equals(obj as Route);
+
+    private bool Equals(Route? other)
+    {
+        if (other == null)
         {
             return false;
         }
-
-        return Equals(route);
-    }
-
-    private bool Equals(Route other)
-    {
+        
         if (Changes != other.Changes)
         {
             return false;
         }
 
-        if (Time != other.Time)
+        if (Math.Abs(TotalTime - other.TotalTime) > 1e-06)
         {
             return false;
         }
@@ -42,17 +44,67 @@ public class Route
             return false;
         }
 
-        for (int i = 0; i < Points.Count; i++)
+        for (var i = 0; i < Points.Count; i++)
         {
             var station = Points[i];
             var otherStation = other.Points[i];
 
-            if (station.Station.Name != otherStation.Station.Name)
+            if (station.StationName != otherStation.StationName)
+            {
+                return false;
+            }
+
+            if (station.Direction != otherStation.Direction)
+            {
+                return false;
+            }
+
+            if (Math.Abs(station.TimeFromPrevious - otherStation.TimeFromPrevious) > 1e-6)
+            {
+                return false;
+            }
+
+            if (station.Line != otherStation.Line)
             {
                 return false;
             }
         }
 
         return true;
+    }
+    
+    public override string ToString()
+    {
+        var result = new StringBuilder();
+        var start = Points.First();
+        var routeOutputNo = 2;
+        
+        result.AppendLine($"(1) Start: {start.StationName}, {start.Line} ({start.Direction})");
+
+        for (var i = 0; i < Points.Count - 1; i++)
+        {
+            var current = Points[i];
+            var next = Points[i + 1];
+
+            if (current.Line != next.Line)
+            {
+                result.AppendLine($"({routeOutputNo}) Change: {current.StationName} {current.Line} ({current.Direction}) to {next.Line} ({next.Direction}) {2:#.00}min");
+                routeOutputNo++;
+            }
+            
+            if (next != null)
+            {
+                result.AppendLine($"({routeOutputNo}) {current.Line} ({current.Direction}): {current.StationName} to {next.StationName}: {next.TimeFromPrevious:#.00}min");
+                routeOutputNo++;
+            }
+            else
+            {
+                result.AppendLine($"({routeOutputNo}) End: {current.StationName}, {current.Line} ({current.Direction})");
+            }
+        }
+        
+        result.AppendLine($"Total Journey Time: {TotalTime:#.00} minutes");
+
+        return result.ToString();
     }
 }
