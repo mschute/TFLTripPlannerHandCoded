@@ -8,6 +8,8 @@ public class Route
     public int Changes { get; }
     public double TotalTime { get; }
 
+    public TextWriter writer = new TextWriter();
+
     public Route(CustomList<RouteNode> points, int changes, double totalTime)
     {
         Points = points;
@@ -78,6 +80,7 @@ public class Route
         var result = new StringBuilder();
         var start = Points.First();
         var routeOutputNo = 2;
+        File.Delete("V1_output.txt");
         
         result.AppendLine($"(1) Start: {start.StationName}, {start.Line} ({start.Direction})");
 
@@ -104,6 +107,7 @@ public class Route
         }
         
         result.AppendLine($"Total Journey Time: {TotalTime:#.00} minutes");
+        writer.WriteToFile(result.ToString());
 
         return result.ToString();
     }
