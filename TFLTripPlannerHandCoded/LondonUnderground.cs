@@ -80,7 +80,7 @@ public class LondonUnderground
         {
             case "Calculate Shortest Path":
                 var shortestRoute = RouteFinder.FindRoute(_stations, options[0], options[1]);
-                Console.Clear();
+                // Console.Clear();
                 Console.WriteLine(shortestRoute.ToString()); 
                 break;
 

@@ -81,15 +81,6 @@ namespace TFLTripPlannerHandCoded
         {
             // Step 1: Find the station to be deleted
             var position = 0;
-            for (var i = 0; i < Size; i++)
-            {
-                if (Heap[i] == obj)
-                {
-                    position = i;
-                    break;
-                }
-            }
-
             // Step 2: Delete the station and replace it with the bottom-most/right-most station
             Heap[position] = Heap[Size - 1];
             // Decrease the size because we've left a blank space.

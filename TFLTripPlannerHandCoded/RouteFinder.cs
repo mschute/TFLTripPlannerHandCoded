@@ -65,12 +65,15 @@ public static class RouteFinder
         
         var unexploredNodes = new HandCodedMinHeap<CalcNode>(1);
         unexploredNodes.Insert(startNode);
+        
+        List<string> visited = new List<string>();
 
         // Score all the nodes, recording the best times and transitions at each node
         while (unexploredNodes.Size > 0)
         {
             //Current station is the one at the front of the queue
             var currentNode = unexploredNodes.Root;
+            visited.Add(currentNode.Station.Name);
             var currentConnections = currentNode.Station.Connections;
 
             for (var i = 0; i < currentConnections.Count; i++)
@@ -111,6 +114,9 @@ public static class RouteFinder
             unexploredNodes.Delete(currentNode);
             currentNode.Visited = true;
         }
+        
+        string visitedStations = string.Join(", ", visited);
+        Console.WriteLine("Sequence of explored stations: " + visitedStations);
 
         // Build path from end to start based on the attributes of each calc node
         var current = calcNodes[endName];
