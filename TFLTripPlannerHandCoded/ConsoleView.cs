@@ -49,20 +49,17 @@ public class ConsoleView
         }
 
         MainMenuItems[0].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[0].Submenu[0], "allStations"));
-
-        //TODO This menu is for removing delays but its showing all stations not just the ones with delays set.
+        
         MainMenuItems[1].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[0], "allLines"));
 
         MainMenuItems[1].Submenu[1].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[1], "allLines"));
-
-        //TODO This menu is for removing closures on tracks but its showing all stations not just the ones closed.
+        
         MainMenuItems[1].Submenu[2].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[2], "allLines"));
 
         MainMenuItems[1].Submenu[3].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[3], "allLines"));
         MainMenuItems[1].Submenu[6].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[6], "allStations"));
     }
-
-    //TODO Refactor this code.
+    
     public MenuItem[] GenerateMenuList(MenuItem parent, string menu)
     {
         MenuItem[] stationsSub;
