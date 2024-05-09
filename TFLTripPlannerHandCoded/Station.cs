@@ -16,18 +16,4 @@ public class Station
     {
         Connections.Add(new Connection(station, weight, line, direction));
     }
-
-    //TODO Do we need compare in here anymore?
-    // public int Compare(Station x, Station y)
-    // {
-    //     // Compare stations by name first
-    //     var nameComparison = x.Name.CompareTo(y.Name);
-    //     if (nameComparison != 0)
-    //     {
-    //         return nameComparison;
-    //     }
-    //
-    //     // If names are equal, compare by time from start
-    //     return x.TimeFromStart.CompareTo(y.TimeFromStart);
-    // }
 }
