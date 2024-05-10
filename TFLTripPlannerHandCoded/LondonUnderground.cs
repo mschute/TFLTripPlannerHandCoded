@@ -80,7 +80,7 @@ public class LondonUnderground
         {
             case "Calculate Shortest Path":
                 var shortestRoute = RouteFinder.FindRoute(_stations, options[0], options[1]);
-                // Console.Clear();
+                Console.Clear();
                 Console.WriteLine(shortestRoute.ToString()); 
                 break;
 
@@ -114,43 +114,4 @@ public class LondonUnderground
                 break;
         }
     }
-
-    // private static void PrintShortestPath(Route route)
-    // {
-    //     Console.Clear();
-    //
-    //     Console.WriteLine($"Route: {route.Points.First().Station.Name} to {route.Points.Last().Station.Name}:");
-    //
-    //     Station prev = null;
-    //
-    //     for (int i = 0; i < route.Points.Count; i++)
-    //     {
-    //         var station = route.Points[i].Station;
-    //         var line = route.Points[i].Line;
-    //
-    //         if (station != prev)
-    //         {
-    //             if (station.Previous != null)
-    //             {
-    //                 Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
-    //                                   station.Name + " (Line: " + line + ")" + " " +
-    //                                   (station.TimeFromStart - station.Previous.TimeFromStart));
-    //             }
-    //             else
-    //             {
-    //                 Console.WriteLine("(" + (route.Points.IndexOf(route.Points[i]) + 1) + ") " +
-    //                                   station.Name + " (Line: " + line + ")");
-    //             }
-    //
-    //             prev = station;
-    //         }
-    //         else
-    //         {
-    //             Console.WriteLine(line);
-    //         }
-    //     }
-    //
-    //     Console.WriteLine($"Total Journey Time: {route.Points.Last().Station.TimeFromStart} minutes");
-    //     Console.WriteLine($"Total changes: {route.Changes}");
-    // }
 }

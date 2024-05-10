@@ -1,6 +1,5 @@
 namespace TFLTripPlannerHandCoded;
 
-//public class Station : IComparer<Station>
 public class Station
 {
     public string Name { get; }

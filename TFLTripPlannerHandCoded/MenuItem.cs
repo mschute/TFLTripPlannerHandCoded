@@ -12,7 +12,7 @@ public class MenuItem
         Parent = null;
         Submenu = submenu;
     }
-
+    
     public MenuItem(string label, MenuItem parent, MenuItem[] submenu)
     {
         Label = label;

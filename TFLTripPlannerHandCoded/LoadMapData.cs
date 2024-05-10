@@ -20,18 +20,17 @@ public static class LoadMapData
                 var line = reader.ReadLine();
                 var values = line.Split(',');
 
-                string lineName = values[0];
-                string direction = values[1];
-                string stationA = values[2];
-                string stationB = values[3];
+                var lineName = values[0];
+                var direction = values[1];
+                var stationA = values[2];
+                var stationB = values[3];
                 double distanceKM, unImpededTime;
                 if (!double.TryParse(values[4], out distanceKM) || !double.TryParse(values[5], out unImpededTime))
                 {
-                    //Console.WriteLine("Error parsing distance or time values in line: " + line);
                     continue; // Skip this line and move to the next one
                 }
 
-                string trainLine = lineName;
+                var trainLine = lineName;
 
                 // Add stations and connections
                 if (!stations.ContainsKey(stationA))
@@ -50,7 +49,7 @@ public static class LoadMapData
                 }
 
                 // Using un-impeded running time as weight
-                double travelTime = unImpededTime;
+                var travelTime = unImpededTime;
 
                 AddConnection(stations, connections, stationA, stationB, travelTime, trainLine, direction);
             }
