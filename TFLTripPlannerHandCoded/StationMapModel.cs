@@ -2,7 +2,6 @@ namespace TFLTripPlannerHandCoded;
 
 public class StationMapModel : IStationMap
 {
-    // constructor takes a string that for the file path
     private CustomDictionary<string, Station> _stations = new();
     private CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> _connections = new();
     
@@ -15,8 +14,6 @@ public class StationMapModel : IStationMap
     {
         this.modelFilePath = modelFilePath;
         
-        
-        //TODO: Check if I need to instantiate a model in two places? If so, this would not be good
         LoadData();
     }
 
