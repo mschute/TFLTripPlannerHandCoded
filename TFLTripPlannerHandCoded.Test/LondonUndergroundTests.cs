@@ -6,6 +6,7 @@ public class LondonUndergroundTests
     public void TestAToE()
     {
         LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
+        var routeFinder = new RouteFinder();
         
         var points = new CustomList<RouteNode>();
         points.Add(new RouteNode("STATION A", "GREEN", 0, "NA"));
@@ -16,7 +17,7 @@ public class LondonUndergroundTests
         var expected = new Route(points, 0, 10.0);
         
         // Act
-        var actual = RouteFinder.FindRoute(stations, "STATION A", "STATION E");
+        var actual = routeFinder.FindRoute(stations, "STATION A", "STATION E");
         
         // Assert
         Assert.That(actual, Is.EqualTo(expected));
@@ -26,6 +27,7 @@ public class LondonUndergroundTests
     public void TestEToA()
     {
         LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
+        var routeFinder = new RouteFinder();
         
         var points = new CustomList<RouteNode>();
         points.Add(new RouteNode("STATION E", "GREEN", 0, "NA"));
@@ -36,7 +38,7 @@ public class LondonUndergroundTests
         var expected = new Route(points, 0, 10.0);
         
         // Act
-        var actual = RouteFinder.FindRoute(stations, "STATION E", "STATION A");
+        var actual = routeFinder.FindRoute(stations, "STATION E", "STATION A");
         
         // Assert
         Assert.That(actual, Is.EqualTo(expected));
@@ -46,6 +48,7 @@ public class LondonUndergroundTests
     public void TestAToC()
     {
         LoadMapData.LoadDataFromCSV("TestData/TestData1.csv", out var stations, out var connections);
+        var routeFinder = new RouteFinder();
         
         var points = new CustomList<RouteNode>();
         points.Add(new RouteNode("STATION A", "GREEN", 0, "NA"));
@@ -55,7 +58,7 @@ public class LondonUndergroundTests
         var expected = new Route(points, 1, 9.0);
         
         // Act
-        var actual = RouteFinder.FindRoute(stations, "STATION A", "STATION C");
+        var actual = routeFinder.FindRoute(stations, "STATION A", "STATION C");
         
         // Assert
         Assert.That(actual, Is.EqualTo(expected));

@@ -1,6 +1,6 @@
 namespace TFLTripPlannerHandCoded;
 
-public static class RouteFinder
+public class RouteFinder: IRouteFinder
 {
     // Structure to store all the calculation related information for a station
     private class CalcNode : IComparable<CalcNode>
@@ -45,7 +45,7 @@ public static class RouteFinder
         }
     }
 
-    public static Route FindRoute(CustomDictionary<string, Station> stations, string startName, string endName)
+    public Route FindRoute(CustomDictionary<string, Station> stations, string startName, string endName)
     {
         if (!stations.ContainsKey(startName) || !stations.ContainsKey(endName))
         {
