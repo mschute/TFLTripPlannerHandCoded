@@ -10,18 +10,18 @@ public class LondonUnderground
         _routeFinder = routeFinder;
         _stationMap = stationMap;
     }
-    
+
     public void Start()
     {
         var consoleView = new ConsoleView(_stationMap);
-        
+
         consoleView.OnShortestPath += OnShortestPath;
         consoleView.OnPrintStation += OnPrintStation;
         consoleView.OnTrackSectionOpen += OnTrackSectionOpen;
         consoleView.OnTrackSectionDelay += OnTrackSectionDelay;
         consoleView.OnPrintStationDelays += OnPrintStationDelays;
         consoleView.OnPrintStationClosures += OnPrintStationClosures;
-        
+
         consoleView.EnterMainMenu();
     }
 

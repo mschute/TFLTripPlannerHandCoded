@@ -1,6 +1,6 @@
 namespace TFLTripPlannerHandCoded;
 
-public class RouteFinder: IRouteFinder
+public class RouteFinder : IRouteFinder
 {
     // Structure to store all the calculation related information for a station
     private class CalcNode : IComparable<CalcNode>
@@ -9,7 +9,7 @@ public class RouteFinder: IRouteFinder
         public string Direction { get; set; }
         public string CurrentLine { get; set; }
         public double TimeFromStart { get; set; }
-        
+
         public double TimeFromPrevious { get; set; }
         public CalcNode Previous { get; set; }
         public CalcNode Next { get; set; }
@@ -51,7 +51,7 @@ public class RouteFinder: IRouteFinder
         {
             return null;
         }
-        
+
         var stationNames = stations.Keys;
         var calcNodes = new CustomDictionary<string, CalcNode>();
         for (var i = 0; i < stationNames.Count; i++)
@@ -62,10 +62,10 @@ public class RouteFinder: IRouteFinder
         //Assign start station
         var startNode = calcNodes[startName];
         startNode.TimeFromStart = 0;
-        
+
         var unexploredNodes = new HandCodedMinHeap<CalcNode>(1);
         unexploredNodes.Insert(startNode);
-        
+
         List<string> visited = new List<string>();
 
         // Score all the nodes, recording the best times and transitions at each node
@@ -103,31 +103,32 @@ public class RouteFinder: IRouteFinder
                         neighborNode.Direction = currentConnections[i].Direction;
                         neighborNode.TimeFromPrevious = currentConnections[i].TravelTime;
                     }
-                    
+
                     if (neighborNode.Visited == false && !unexploredNodes.Has(neighborNode))
                     {
                         unexploredNodes.Insert(neighborNode);
                     }
                 }
             }
-            
+
             unexploredNodes.Delete(currentNode);
             currentNode.Visited = true;
         }
-        
+
         string visitedStations = string.Join(", ", visited);
         Console.WriteLine("Sequence of explored stations: " + visitedStations);
 
         // Build path from end to start based on the attributes of each calc node
         var current = calcNodes[endName];
         var next = current.Previous;
-        
+
         var changes = 0;
         var totalTime = current.TimeFromStart;
         var shortestPath = new CustomList<RouteNode>();
-        
-        shortestPath.Add(new RouteNode(current.Station.Name, current.CurrentLine, current.TimeFromPrevious, current.Direction));
-        
+
+        shortestPath.Add(new RouteNode(current.Station.Name, current.CurrentLine, current.TimeFromPrevious,
+            current.Direction));
+
         while (next != null)
         {
             if (next.CurrentLine != current.CurrentLine)
@@ -142,8 +143,9 @@ public class RouteFinder: IRouteFinder
                     changes++;
                 }
             }
-            
-            shortestPath.Insert(0, new RouteNode(next.Station.Name, next.CurrentLine, next.TimeFromPrevious, next.Direction));
+
+            shortestPath.Insert(0,
+                new RouteNode(next.Station.Name, next.CurrentLine, next.TimeFromPrevious, next.Direction));
             current = next;
             next = current.Station == stations[startName] ? null : current.Previous;
         }

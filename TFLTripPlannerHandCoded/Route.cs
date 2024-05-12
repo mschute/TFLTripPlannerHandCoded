@@ -30,7 +30,7 @@ public class Route
         {
             return false;
         }
-        
+
         if (Changes != other.Changes)
         {
             return false;
@@ -74,14 +74,14 @@ public class Route
 
         return true;
     }
-    
+
     public override string ToString()
     {
         var result = new StringBuilder();
         var start = Points.First();
         var routeOutputNo = 2;
         File.Delete("V1_output.txt");
-        
+
         result.AppendLine($"(1) Start: {start.StationName}, {start.Line} ({start.Direction})");
 
         for (var i = 0; i < Points.Count - 1; i++)
@@ -91,21 +91,24 @@ public class Route
 
             if (current.Line != next.Line)
             {
-                result.AppendLine($"({routeOutputNo}) Change: {current.StationName} {current.Line} ({current.Direction}) to {next.Line} ({next.Direction}) {2:#.00}min");
+                result.AppendLine(
+                    $"({routeOutputNo}) Change: {current.StationName} {current.Line} ({current.Direction}) to {next.Line} ({next.Direction}) {2:#.00}min");
                 routeOutputNo++;
             }
-            
+
             if (next != null)
             {
-                result.AppendLine($"({routeOutputNo}) {current.Line} ({current.Direction}): {current.StationName} to {next.StationName}: {next.TimeFromPrevious:#.00}min");
+                result.AppendLine(
+                    $"({routeOutputNo}) {current.Line} ({current.Direction}): {current.StationName} to {next.StationName}: {next.TimeFromPrevious:#.00}min");
                 routeOutputNo++;
             }
             else
             {
-                result.AppendLine($"({routeOutputNo}) End: {current.StationName}, {current.Line} ({current.Direction})");
+                result.AppendLine(
+                    $"({routeOutputNo}) End: {current.StationName}, {current.Line} ({current.Direction})");
             }
         }
-        
+
         result.AppendLine($"Total Journey Time: {TotalTime:#.00} minutes");
         writer.WriteToFile(result.ToString());
 

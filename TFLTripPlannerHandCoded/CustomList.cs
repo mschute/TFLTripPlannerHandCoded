@@ -107,13 +107,11 @@ public class CustomList<T>
 
     public void Clear()
     {
-        // Optional to nullify references
         for (int i = 0; i < Count; i++)
         {
             items[i] = default(T);
         }
 
-        // Can just be this if refs don't need nullifying
         Count = 0;
     }
 }

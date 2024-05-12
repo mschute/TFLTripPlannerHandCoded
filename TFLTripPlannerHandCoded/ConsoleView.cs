@@ -20,10 +20,15 @@ public class ConsoleView
     private const string StationsInLine = "stationsInLine";
 
     public delegate void OnShortestPathHandler(string start, string end);
+
     public delegate void OnPrintStationHandler(string name);
+
     public delegate void OnPrintStationClosuresHandler();
+
     public delegate void OnPrintStationDelaysHandler();
+
     public delegate void OnTrackSectionOpenHandler(string line, string station, int connection, bool open);
+
     public delegate void OnTrackSectionDelayHandler(string line, string station, int connection, int delay);
 
     public OnShortestPathHandler OnShortestPath;
@@ -40,7 +45,7 @@ public class ConsoleView
     public ConsoleView(IStationMap stationMap)
     {
         _stationMap = stationMap;
-        
+
         Console.CursorVisible = false;
         InitializeMenu();
     }
@@ -83,15 +88,15 @@ public class ConsoleView
         }
 
         MainMenuItems[0].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[0].Submenu[0], AllStations));
-        
+
         MainMenuItems[1].Submenu[0].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[0], AllLines));
 
         MainMenuItems[1].Submenu[1].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[1], AllLines));
-        
+
         MainMenuItems[1].Submenu[2].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[2], AllLines));
 
         MainMenuItems[1].Submenu[3].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[3], AllLines));
-        
+
         MainMenuItems[1].Submenu[6].SetSubMenu(GenerateMenuList(MainMenuItems[1].Submenu[6], AllStations));
     }
 
@@ -102,7 +107,7 @@ public class ConsoleView
         if (menu == AllStations)
         {
             var stationKeys = _stationMap.Stations.Keys;
-            
+
             stationsSub = new MenuItem[stationKeys.Count + 1];
             for (var i = 0; i < stationKeys.Count; i++)
             {
@@ -110,15 +115,15 @@ public class ConsoleView
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
             }
-            
+
             stationsSub[stationKeys.Count] = new MenuItem(Back, null);
         }
         else if (menu == AllLines)
         {
             var connectionKeys = _stationMap.Connections.Keys;
-            
+
             stationsSub = new MenuItem[connectionKeys.Count + 1];
-            
+
             for (var i = 0; i < connectionKeys.Count; i++)
             {
                 var newLine = (new MenuItem(connectionKeys[i], null));
@@ -126,13 +131,13 @@ public class ConsoleView
                 stationsSub[i] = newLine;
                 stationsSub[i].SetSubMenu(GenerateMenuList(newLine, StationsInLine));
             }
-            
+
             stationsSub[connectionKeys.Count] = new MenuItem(Back, null);
         }
         else if (menu == StationsInLine)
         {
             var connectionParentKeys = _stationMap.Connections[parent.Label].Keys;
-            
+
             stationsSub = new MenuItem[connectionParentKeys.Count + 1];
 
             for (var i = 0; i < connectionParentKeys.Count; i++)
@@ -142,7 +147,7 @@ public class ConsoleView
                 stationsSub[i] = newStat;
                 stationsSub[i].SetSubMenu(GenerateMenuList(newStat, ConnectionsForStation));
             }
-            
+
             stationsSub[connectionParentKeys.Count] = new MenuItem(Back, null);
         }
         else if (menu == ConnectionsForStation)
@@ -158,7 +163,7 @@ public class ConsoleView
                 newStat.SetParentMenu(parent);
                 stationsSub[i] = newStat;
             }
-            
+
             stationsSub[_stationMap.Connections[parent.Parent.Label][parent.Label].Count] = new MenuItem(Back, null);
         }
         else
@@ -171,8 +176,8 @@ public class ConsoleView
 
     private void NavigateMenu(MenuItem[] menuItems)
     {
-        var startIndex = 0; // Index of the first visible item
-        var endIndex = Console.WindowHeight - 1; // Index of the last visible item
+        var startIndex = 0;
+        var endIndex = Console.WindowHeight - 1;
 
         var selectedItemIndex = 0;
 
@@ -242,7 +247,6 @@ public class ConsoleView
                     }
                     else if (menuItems[selectedItemIndex].Label == Exit)
                     {
-                        // Exit the application
                         Console.WriteLine("Process Terminated, Press any key to close");
                         Environment.Exit(0);
                     }
@@ -309,7 +313,7 @@ public class ConsoleView
             }
         }
     }
-    
+
     private void HandleUserInput(string response, CustomList<string> options)
     {
         switch (response)

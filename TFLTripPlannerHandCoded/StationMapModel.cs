@@ -4,7 +4,7 @@ public class StationMapModel : IStationMap
 {
     private CustomDictionary<string, Station> _stations = new();
     private CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> _connections = new();
-    
+
     public CustomDictionary<string, Station> Stations => _stations;
     public CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>> Connections => _connections;
 
@@ -13,7 +13,7 @@ public class StationMapModel : IStationMap
     public StationMapModel(string modelFilePath)
     {
         this.modelFilePath = modelFilePath;
-        
+
         LoadData();
     }
 
@@ -36,17 +36,17 @@ public class StationMapModel : IStationMap
                 {
                     if (!Connections[line][station][k].Open)
                     {
-                        status +=  $"Connection from {station} " +
-                                   $"to {Connections[line][station][k].DestinationStation.Name} " +
-                                   $"on {line}\n";
+                        status += $"Connection from {station} " +
+                                  $"to {Connections[line][station][k].DestinationStation.Name} " +
+                                  $"on {line}\n";
                     }
                 }
             }
         }
-        
+
         return status;
     }
-    
+
     public string GetNetworkDelaysStatus()
     {
         var status = "";

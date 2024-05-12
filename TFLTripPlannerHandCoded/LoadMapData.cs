@@ -1,6 +1,6 @@
 namespace TFLTripPlannerHandCoded;
 
-using Stations = CustomDictionary <string, Station>;
+using Stations = CustomDictionary<string, Station>;
 using Connections = CustomDictionary<string, CustomDictionary<string, CustomList<Connection>>>;
 
 public static class LoadMapData
@@ -9,10 +9,9 @@ public static class LoadMapData
     {
         stations = new Stations();
         connections = new Connections();
-        
+
         using (var reader = new StreamReader(filePath))
         {
-            // Skip the header line
             reader.ReadLine();
 
             while (!reader.EndOfStream)
@@ -27,7 +26,7 @@ public static class LoadMapData
                 double distanceKM, unImpededTime;
                 if (!double.TryParse(values[4], out distanceKM) || !double.TryParse(values[5], out unImpededTime))
                 {
-                    continue; // Skip this line and move to the next one
+                    continue;
                 }
 
                 var trainLine = lineName;
@@ -56,7 +55,8 @@ public static class LoadMapData
         }
     }
 
-    private static void AddConnection(Stations stations, Connections connections, string station1, string station2, double travelTime, string line,
+    private static void AddConnection(Stations stations, Connections connections, string station1, string station2,
+        double travelTime, string line,
         string direction)
     {
         if (!stations.ContainsKey(station1) || !stations.ContainsKey(station2))

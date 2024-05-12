@@ -47,7 +47,7 @@ namespace TFLTripPlannerHandCoded
             while (HasLeftChild(position))
             {
                 var smallestChild = LeftChildIndex(position);
-                
+
                 if (HasRightChild(position) &&
                     Heap[RightChildIndex(position)].CompareTo(Heap[LeftChildIndex(position)]) < 0)
                 {
